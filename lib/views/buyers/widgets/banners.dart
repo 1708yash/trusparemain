@@ -17,11 +17,11 @@ class _BannersState extends State<Banners> {
   Future<void> getBanners() async {
     try {
       QuerySnapshot querySnapshot =
-      await _firestore.collection('banners').get();
+          await _firestore.collection('banners').get();
       setState(() {
         _bannerImage.clear(); // Clear the list before adding new items
-        _bannerImage.addAll(
-            querySnapshot.docs.map((doc) => doc['image'].toString()));
+        _bannerImage
+            .addAll(querySnapshot.docs.map((doc) => doc['image'].toString()));
       });
     } catch (e) {
       if (kDebugMode) {
@@ -41,12 +41,16 @@ class _BannersState extends State<Banners> {
     return Container(
       height: 140,
       width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       child: PageView.builder(
         itemCount: _bannerImage.length,
         itemBuilder: (context, index) {
-          return Image.network(_bannerImage[index]);
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+            _bannerImage[index],
+            fit: BoxFit.fill,
+          ));
         },
       ),
     );
