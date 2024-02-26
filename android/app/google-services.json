@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "730037841272",
+    "project_id": "trusparemain",
+    "storage_bucket": "trusparemain.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730037841272:android:b28461bbfac6c3871f2c8d",
+        "android_client_info": {
+          "package_name": "com.trusparemain.trusparemain"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "730037841272-7t80gfn5ghvmk41keqpr9nn43gv5mkhb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.trusparemain.trusparemain",
+            "certificate_hash": "7e79020085801d5a5a4de7e5d44df266c459094c"
+          }
+        },
+        {
+          "client_id": "730037841272-5gd7u2sjm7pokeeeid58rp212lai1gns.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSv4N8IIzFu2aqNeiXOm5TVkyOtdYNSU4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "730037841272-5gd7u2sjm7pokeeeid58rp212lai1gns.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "730037841272-1eau2t57ddgeha0djde78gf9tc4g35r2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.trusparemain.trusparemain.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
