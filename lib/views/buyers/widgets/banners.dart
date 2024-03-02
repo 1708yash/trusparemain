@@ -42,17 +42,17 @@ class _BannersState extends State<Banners> {
       height: 140,
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-      child: PageView.builder(
-        itemCount: _bannerImage.length,
-        itemBuilder: (context, index) {
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-            _bannerImage[index],
-            fit: BoxFit.fill,
-          ));
-        },
-      ),
+      // child: PageView.builder(
+      //   itemCount: _bannerImage.length,
+      //   itemBuilder: (context, index) {
+      //     return ClipRRect(
+      //       borderRadius: BorderRadius.circular(10),
+      //         child: Image.network(
+      //       _bannerImage[index],
+      //       fit: BoxFit.fill,
+      //     ));
+      //   },
+      // ),
     );
   }
 }
