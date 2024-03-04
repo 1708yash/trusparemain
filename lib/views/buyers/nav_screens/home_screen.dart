@@ -1,5 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax/iconsax.dart';
+
 import 'package:trusparemain/views/buyers/widgets/banners.dart';
 import 'package:trusparemain/views/buyers/widgets/category_text.dart';
 import '../../../utils/appbar/appbar.dart';
@@ -12,16 +13,16 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      appBar: const YAppBar(
-        showBackArrow: false,
-        title: Text("Welcome"),
+      appBar: YAppBar(
         actions: [
-          Row(
-            children: [
-              Icon(Iconsax.shopping_bag,)
-            ],
-          )
+          IconButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+              },
+              icon: const Icon(Icons.leave_bags_at_home))
         ],
+        showBackArrow: false,
+        title: const Text("Welcome"),
       ),
       body: SingleChildScrollView(
         child: Padding(

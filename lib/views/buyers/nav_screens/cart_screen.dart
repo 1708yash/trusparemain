@@ -7,19 +7,37 @@ class  CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: YAppBar(
+    return  Scaffold(
+      appBar: const YAppBar(
         showBackArrow: false,
         title: Text("Search Here"),
       ),
-      body: SingleChildScrollView(
-        child: Padding(padding: EdgeInsets.all(TSizes.defaultSpace),
-          child: Column(
-            children: [
-              Text("this is the cart screen")
-            ],
-          ),),
+
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(padding: const EdgeInsets.all(TSizes.defaultSpace),
+            child: Column(
+              children: [
+                const Text("Your Cart is Empty"),
+                const SizedBox(height: 24,),
+                Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.cyan,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  width: MediaQuery.of(context).size.width -120 ,
+                  child: const Center(
+                    child: Text('Continue Shopping',style: TextStyle(
+                      fontSize: 18,color: Colors.white
+                    ),),
+                  ),
+                ),
+              ],
+            ),),
+        ),
       ),
     );
   }
 }
+

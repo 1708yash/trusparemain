@@ -14,6 +14,7 @@ class YImages{
 static const String onBoardingImage1 = "assets/images/on_boarding_images/onboardpage1.gif";
 static const String onBoardingImage2 = "assets/images/on_boarding_images/onboardingpage2.gif";
 static const String onBoardingImage3 = "assets/images/on_boarding_images/onboardingpage3.gif";
+static const String cycle = "assets/images/on_boarding_images/cycle.gif";
 
 // animations
 static const String verifyEmail = "assets/images/animations/verifyemail.gif";

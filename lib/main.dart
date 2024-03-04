@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:trusparemain/views/auth/register_screen.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
+import 'package:trusparemain/utils/theme/theme.dart';
+import 'package:trusparemain/views/onboarding/onboarding.dart';
 import 'firebase_options.dart';
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,13 +16,14 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+
+    return GetMaterialApp(
       title: 'Truspare',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Lato',
-      ),
-      home:  const RegisterScreen(),
+      themeMode: ThemeMode.system,
+      theme: YAppTheme.lightTheme,
+      darkTheme: YAppTheme.darkTheme,
+      home:   const OnBoardingScreen(),
+      builder: EasyLoading.init(),
     );
   }
 }

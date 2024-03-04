@@ -17,20 +17,27 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   late String email;
   late String password;
+  bool _isLoading =false;
   final GlobalKey<FormState> _formKey =GlobalKey<FormState>();
   final AuthController _authController =AuthController();
+
   _loginUsers() async{
+    setState(() {
+      _isLoading =true;
+    });
     if(_formKey.currentState!.validate()){
   String res =await _authController.loginUsers(email, password);
   if(res =="success"){
     return Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
-      return MainScreen();
+      return const MainScreen();
     }));
   } else{
+
     return showSnack(context, 'Wrong User Credentials');
   }
     }
     else{
+      _isLoading=false;
       return showSnack(context, 'Form not complete');
     }
   }
@@ -49,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
 
-                SizedBox(height: 100,),
+                const SizedBox(height: 100,),
                 //email field
                 TextFormField(
                   onChanged: ((value){
@@ -65,7 +72,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       labelText: 'Enter Email',
                       prefixIcon: const Icon(Icons.email), // Add prefix icon
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10))),
+                          borderRadius: BorderRadius.circular(10))
+                  ),
 
                 ),
                 const SizedBox(height: 12),
@@ -79,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                     else{return null;}
                   },
+                  obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Enter Password',
                     prefixIcon: const Icon(Icons.lock),
@@ -96,7 +105,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: TextButton(
                     onPressed: _loginUsers,
-                    child:const Text(
+                    child:_isLoading? const CircularProgressIndicator(
+                      color: Colors.white,
+                    ): const Text(
                       'Login',
                       style: TextStyle(
                         color: Colors.white,

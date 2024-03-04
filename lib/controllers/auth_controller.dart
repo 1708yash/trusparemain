@@ -1,34 +1,48 @@
+
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:trusparemain/utils/show_snackBar.dart';
+
 
 class AuthController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  Future<void> registerWithEmailAndPassword(String fullName, String email,
-      String phoneNumber, String password) async {
+  Future<String>signUpUSers(String fullName, String email, String phoneNumber,
+      String password,Uint8List? image,agreeToTerms) async {
+    String res = "Something went wrong";
     try {
       // Create user with email and password
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      await _firestore.collection('buyers').doc(userCredential.user!.uid).set({
-        'email': email,
-        'fullName': fullName,
-        'phoneNumber': phoneNumber,
-        'buyerId': userCredential.user!.uid,
-        'address': "",
-      });
-      // You can also save additional user data to Firebase Firestore or Realtime Database here
+      if (email.isNotEmpty &&
+          fullName.isNotEmpty &&
+          phoneNumber.isNotEmpty &&
+          password.isNotEmpty && image!=null &&
+      agreeToTerms) {
+        // then create the user
+        UserCredential cred = await _auth.createUserWithEmailAndPassword(
+            email: email, password: password);
+    String profileImageUrl =await _uploadProfileImageToStorage(image);
+        res ='success';
+        await _firestore.collection('buyers').doc(cred.user!.uid).set({
+          'email': email,
+          'fullName': fullName,
+          'phoneNumber': phoneNumber,
+          'buyerId': cred.user!.uid,
+          'profileImage': profileImageUrl,
+          'agreeToTerms':agreeToTerms,
+
+        });
+      } else {
+        res = 'Fields must not be empty';
+      }
     } catch (e) {
-      // Handle registration errors
-      print("Registration Error: $e");
-      rethrow; // You can handle the error according to your application's needs
+      res = e.toString();
     }
+    return res;
   }
 
   loginUsers(String email, String password) async {
@@ -48,14 +62,24 @@ class AuthController {
     return res;
   }
 
-  pickProfileImage(ImageSource source)async{
-final ImagePicker imagePicker =ImagePicker();
- XFile? file = await imagePicker.pickImage(source: source);
+  _uploadProfileImageToStorage(Uint8List? image) async {
+    Reference ref =
+        _storage.ref().child('userProfilePics').child(_auth.currentUser!.uid);
 
- if(file!=null){
-   return await file.readAsBytes();
- }else{
-  print("no image was pickup");
- }
+    UploadTask uploadTask = ref.putData(image!);
+    TaskSnapshot snapshot = await uploadTask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
+  }
+
+  pickProfileImage(ImageSource source) async {
+    final ImagePicker imagePicker = ImagePicker();
+    XFile? file = await imagePicker.pickImage(source: source);
+
+    if (file != null) {
+      return await file.readAsBytes();
+    } else {
+    print("Image auth controller");
+    }
   }
 }
