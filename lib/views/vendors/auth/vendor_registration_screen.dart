@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:trusparemain/controllers/vendor_register_controller.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
 import 'package:trusparemain/utils/show_snackBar.dart';
+import 'package:trusparemain/views/vendors/auth/vendor_login_screen.dart';
 
 class VendorRegistrationScreen extends StatefulWidget {
   const VendorRegistrationScreen({super.key});
@@ -27,12 +28,13 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
   Uint8List? _profileImage;
   Uint8List? _verificationDoc;
   bool _agreeToTerms = false;
- late String businessName;
- late String email;
- late String phoneNumber;
- late String streetAddress;
- late String pinCode;
- late String gstNumber;
+  late String businessName;
+  late String email;
+  late String password;
+  late String phoneNumber;
+  late String streetAddress;
+  late String pinCode;
+  late String gstNumber;
 
 
   selectGalleryImage() async {
@@ -42,6 +44,7 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
       _profileImage = img;
     });
   }
+
   selectGalleryImageVerification() async {
     Uint8List verificationImg =
     await _vendorController.pickStoreImage(ImageSource.gallery);
@@ -49,6 +52,7 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
       _verificationDoc = verificationImg;
     });
   }
+
   selectCameraImage() async {
     Uint8List img =
     await _vendorController.pickStoreImage(ImageSource.camera);
@@ -56,10 +60,10 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
       _profileImage = img;
     });
   }
+
   _saveVendorDetails() async {
- EasyLoading.show(status: 'Please wait');
     if (_formKey.currentState!.validate()) {
-      await _vendorController.registerVendor(
+      await _vendorController.signUpUSers(
           businessName,
           email,
           phoneNumber,
@@ -68,23 +72,23 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
           cityValue,
           streetAddress,
           pinCode,
-          _isGSTRegistered ,
+          _isGSTRegistered,
           gstNumber,
-          _agreeToTerms ,
+          _agreeToTerms,
           _profileImage,
-          _verificationDoc).whenComplete(() {
-            EasyLoading.dismiss();
+          _verificationDoc, password).whenComplete(() {
+
+
       });
     } else {
       showSnack(context, 'Fill all the required Fields');
       EasyLoading.dismiss();
       setState(() {
         _formKey.currentState!.reset();
-        _profileImage =null;
-        _verificationDoc=null;
-        _agreeToTerms=false;
-        _isGSTRegistered =false;
-
+        _profileImage = null;
+        _verificationDoc = null;
+        _agreeToTerms = false;
+        _isGSTRegistered = false;
       });
     }
   }
@@ -108,8 +112,8 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text("Make Your Store",style: TextStyle(
-                            fontSize: 20
+                          const Text("Make Your Store", style: TextStyle(
+                              fontSize: 20
                           ),),
                           Container(
                             height: 90,
@@ -144,9 +148,22 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
+                      Row(
+                        children: [
+                          const Text('Already Have an account?',
+                            style: TextStyle(fontWeight: FontWeight.w300),),
+                          TextButton(onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (
+                                    context) => const VendorLoginScreen()));
+                          }, child: const Text("Sign-In")),
+                        ],
+                      ),
+
                       TextFormField(
-                        onChanged: (value){
-                          businessName=value;
+                        onChanged: (value) {
+                          businessName = value;
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -165,8 +182,8 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
-                        onChanged: (value){
-                          email=value;
+                        onChanged: (value) {
+                          email = value;
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -185,9 +202,32 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
+                      // password
                       TextFormField(
-                        onChanged: (value){
-                          phoneNumber=value;
+                        onChanged: (value) {
+                          password = value;
+                        },
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Password can not be empty and must be grater than 6 characters!';
+                          } else {
+                            return null;
+                          }
+                        },
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Enter Password',
+                          prefixIcon: const Icon(Icons.password),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        onChanged: (value) {
+                          phoneNumber = value;
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -207,8 +247,8 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
-                        onChanged: (value){
-                          pinCode=value;
+                        onChanged: (value) {
+                          pinCode = value;
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -228,8 +268,8 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
-                        onChanged: (value){
-                          streetAddress=value;
+                        onChanged: (value) {
+                          streetAddress = value;
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -305,8 +345,8 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                       const SizedBox(height: 12,),
                       if(_isGSTRegistered == true)
                         TextFormField(
-                          onChanged: (value){
-                            gstNumber=value;
+                          onChanged: (value) {
+                            gstNumber = value;
                           },
                           decoration: InputDecoration(
                             labelText: 'Enter GST Number',
@@ -317,7 +357,7 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                           ),
                         ),
                       // verification documents upload
-
+                      const SizedBox(height: 12,),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,

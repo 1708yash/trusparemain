@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:flutter/material.dart';
-import 'package:trusparemain/views/vendors/auth/vendor_auth.dart';
-import 'package:trusparemain/views/vendors/screens/landing_screen.dart';
+import 'package:trusparemain/views/vendors/auth/vendor_registration_screen.dart';
+import 'package:trusparemain/views/vendors/main_screen_handler.dart';
 
 class VendorAuthScreen extends StatefulWidget {
   const VendorAuthScreen({super.key});
@@ -19,9 +19,9 @@ class _VendorAuthScreenState extends State<VendorAuthScreen> {
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return const LandingScreen();
+              return const MainVendorScreen();
             } else {
-              return const LoginForm();
+              return const VendorRegistrationScreen();
             }
           },
         )

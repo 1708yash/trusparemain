@@ -9,6 +9,7 @@ class VendorController {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
 // function to store Image
   pickStoreImage(ImageSource source) async {
     final ImagePicker imagePicker = ImagePicker();
@@ -36,65 +37,76 @@ class VendorController {
 
   // function to store image on firestore
 
-  _uploadVendorImageToStore(
-      Uint8List? profileImage) async{
+  _uploadVendorImageToStore(Uint8List? profileImage) async {
     Reference ref =
-        _storage.ref().child('storeImage').child(_auth.currentUser!.uid);
+    _storage.ref().child('storeImage').child(_auth.currentUser!.uid);
     UploadTask uploadTask = ref.putData(profileImage!);
     await uploadTask;
     TaskSnapshot snapshot = await uploadTask;
-    String downloadUrl =await snapshot.ref.getDownloadURL();
-return downloadUrl;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
   }
 
-  _uploadVendorVerificationToStore( Uint8List? verificationDocUpload)async{
-   Reference ref= _storage.ref().child('VerifyDocuments').child(_auth.currentUser!.uid);
+  _uploadVendorVerificationToStore(Uint8List? verificationDocUpload) async {
+    Reference ref =
+    _storage.ref().child('VerifyDocuments').child(_auth.currentUser!.uid);
     UploadTask uploadtask = ref.putData(verificationDocUpload!);
-   TaskSnapshot snapshot = await uploadtask;
-   String downloadUrl =await snapshot.ref.getDownloadURL();
-   return downloadUrl;
+    TaskSnapshot snapshot = await uploadtask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
   }
 
   // function to pick store data
-  Future<String> registerVendor(
-    String businessName,
-    String email,
-    String phoneNumber,
-    String country,
-    String state,
-    String city,
-    String streetAddress,
-    String pinCode,
-    gstRegistered,
-    String gstNumber,
-     agreeToTerms,
-    Uint8List? profileImage,
-    Uint8List? verificationDocUpload,
-  ) async {
-    String res = 'some error occurred';
-
+  Future<String> signUpUSers(
+      String businessName,
+      String email,
+      String phoneNumber,
+      String countryValue,
+      String stateValue,
+      String cityValue,
+      String streetAddress,
+      String pinCode,
+      isGSTRegistered,
+      String gstNumber,
+      agreeToTerms,
+      Uint8List? profileImage,
+      Uint8List? verificationDoc, String password) async {
+    String res = "Something went wrong";
     try {
-      {
-       String storeImage= await _uploadVendorImageToStore(profileImage);
-       String verificationDocument= await _uploadVendorVerificationToStore(verificationDocUpload);
-
-        await _firestore.collection('vendors').doc(_auth.currentUser!.uid).set(
-            {
-              'businessName':businessName,
-              'email':email,
-              'phoneNumber':phoneNumber,
-              'country':country,
-              'state':state,
-              'city':city,
-              'streetAddress':streetAddress,
-              'pinCode':pinCode,
-              'gstRegistered':gstRegistered,
-              'gstNumber':gstNumber,
-              'agreeToTerms':agreeToTerms,
-              'profileImage':storeImage,
-              'verificationDoc':verificationDocument,
-              'approved':false,
-            });
+      // Create user with email and password
+      if (email.isNotEmpty &&
+          businessName.isNotEmpty &&
+          phoneNumber.isNotEmpty &&
+          password.isNotEmpty && profileImage != null &&
+          verificationDoc != null && countryValue.isNotEmpty &&
+          stateValue.isNotEmpty && cityValue.isNotEmpty &&
+          streetAddress.isNotEmpty &&
+          agreeToTerms) {
+        // then create the user
+        UserCredential cred = await _auth.createUserWithEmailAndPassword(
+            email: email, password: password);
+        String profileImageUrl = await _uploadVendorImageToStore(profileImage);
+        String verificationDocUrl = await _uploadVendorVerificationToStore(
+            verificationDoc);
+        res = 'success';
+        await _firestore.collection('vendors').doc(cred.user!.uid).set({
+          'businessName': businessName,
+          'email': email,
+          'phoneNumber': phoneNumber,
+          'countryValue': countryValue,
+          'stateValue': stateValue,
+          'cityValue': cityValue,
+          'streetAddress': streetAddress,
+          'pinCode': pinCode,
+          'isRegisteredToGst': isGSTRegistered,
+          'gstNumber': gstNumber,
+          'agreeToTerms': agreeToTerms,
+          'profileImage': profileImageUrl,
+          'verificationDoc': verificationDocUrl,
+          'VendorID': cred.user!.uid,
+        });
+      } else {
+        res = 'Fields must not be empty';
       }
     } catch (e) {
       res = e.toString();

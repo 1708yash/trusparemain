@@ -94,11 +94,10 @@ class _LoginFormState extends State<LoginForm> {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
                       login
-                          ? AuthServices.signinUser(email, password, context)
+                           ? AuthServices.signinUser(email, password, context)
                           :  Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const VendorRegistrationScreen()));
-                    }
+                          MaterialPageRoute(builder: (context) => const VendorRegistrationScreen()));}
                   },
                   child:Text(login ? 'Login' : 'Signup',
                     style: const TextStyle(
@@ -118,6 +117,9 @@ class _LoginFormState extends State<LoginForm> {
                     setState(() {
                       login = !login;
                     });
+                    !login ?Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const VendorRegistrationScreen())):null;
                   },
                   child: Text(login
                       ? "Don't have an account? Signup"
