@@ -6,7 +6,7 @@ import 'package:trusparemain/utils/constants/sizes.dart';
 import 'package:trusparemain/views/vendors/auth/vendor_auth_screen.dart';
 
 import '../utils/helpers/helper_function.dart';
-import 'auth/widgets/login_state_check.dart';
+import 'auth/buyers_login_check.dart';
 
 class AccountType extends StatefulWidget {
   const AccountType({super.key});
@@ -68,7 +68,7 @@ class _AccountTypeState extends State<AccountType> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: TextButton(
-                onPressed: ()=> Get.to(()=> const LoginStateCheck()),
+                onPressed: ()=> Get.to(()=> const BuyersAuthScreen()),
                 child: const Text(
                   'Register As A Buyer',
                   style: TextStyle(

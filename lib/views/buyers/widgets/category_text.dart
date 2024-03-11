@@ -1,17 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:iconsax/iconsax.dart';
 
-class CategoryText extends StatelessWidget {
-  final List<String> _categories = const [
-    'Shoe Brakes',
-    'Mudguard',
-    'Silencer',
-    'Headlights',
-    'Stickers',
-    'Paints'
-  ];
+class CategoryText extends StatefulWidget {
+  const CategoryText({Key? key}) : super(key: key);
 
-  const CategoryText({super.key});
+  @override
+  _CategoryTextState createState() => _CategoryTextState();
+}
+
+class _CategoryTextState extends State<CategoryText> {
+  late List<String> _categories;
+
+  @override
+  void initState() {
+    super.initState();
+    _categories = [];
+    fetchCategories();
+  }
+
+  Future<void> fetchCategories() async {
+    try {
+      var snapshot = await FirebaseFirestore.instance.collection('categories').get();
+      setState(() {
+        _categories = snapshot.docs.map((doc) => doc['categoryName'] as String).toList();
+      });
+    } catch (e) {
+      print("Error fetching categories: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +38,7 @@ class CategoryText extends StatelessWidget {
           "Categories",
           style: TextStyle(fontSize: 19),
         ),
+        const SizedBox(height: 20,),
         SizedBox(
           height: 40,
           child: Row(
@@ -34,15 +52,17 @@ class CategoryText extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: ActionChip(
-                          onPressed: (){},
-                          label: Text(_categories[index],
-                              style: const TextStyle(color: Colors.black))),
+                        onPressed: () {},
+                        label: Text(
+                          _categories[index],
+                          style: const TextStyle(color: Colors.black),
+                        ),
+                      ),
                     );
                   },
                 ),
               ),
-              IconButton(
-                  onPressed: () {}, icon: const Icon(Iconsax.arrow_right_3))
+
             ],
           ),
         ),

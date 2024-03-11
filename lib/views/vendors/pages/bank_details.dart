@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
 
-import 'add_back_details.dart';
+import 'add_bank_details.dart';
 
 
 class BankAccount extends StatelessWidget {

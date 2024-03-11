@@ -27,7 +27,7 @@ class _VendorLoginScreenState extends State<VendorLoginScreen> {
         // Navigate to the home page or perform other actions upon successful login
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MainVendorScreen()),
+          MaterialPageRoute(builder: (context) => const MainVendorScreen()),
         );
       } catch (e) {
         e.toString();
@@ -62,9 +62,29 @@ class _VendorLoginScreenState extends State<VendorLoginScreen> {
               obscureText: true,
             ),
             const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _signInWithEmailAndPassword,
-              child: const Text('Submit'),
+            Container(
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width - 120,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.cyan.shade400,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: TextButton(
+
+                onPressed: _signInWithEmailAndPassword,
+                child: const Text(
+                  'Login',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 19,
+                    letterSpacing: 2,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Row(

@@ -230,7 +230,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         : const Text(
                             'Register',
                             style: TextStyle(
-                              color: Colors.red              ,
+                              color: Colors.white              ,
                               fontSize: 19,
                               letterSpacing: 2,
                               fontWeight: FontWeight.bold,

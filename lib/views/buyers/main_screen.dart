@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'nav_screens/account_screen.dart';
 import 'nav_screens/cart_screen.dart';
-import 'nav_screens/category_screen.dart';
 import 'nav_screens/home_Screen.dart';
 import 'nav_screens/search_screen.dart';
-import 'nav_screens/store_Screen.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -19,8 +17,6 @@ class _MainScreenState extends State<MainScreen> {
   int _pageIndex = 0;
   final List<Widget> _pages = [
     const Home(),
-    const CategoryScreen(),
-    const StoreScreen(),
     const CartScreen(),
     const SearchScreen(),
     const AccountScreen()
@@ -44,10 +40,6 @@ class _MainScreenState extends State<MainScreen> {
               icon: Icon(Icons.home, size: 24, color: Colors.grey.shade400,),
               label: "Home",
               activeIcon: const Icon(Iconsax.home, size: 24),),
-            const BottomNavigationBarItem(
-                icon: Icon(Iconsax.menu, size: 24), label: "Categories"),
-            const BottomNavigationBarItem(
-                icon: Icon(Iconsax.shop, size: 24), label: "Store"),
             const BottomNavigationBarItem(
                 icon: Icon(Iconsax.shopping_cart, size: 24), label: "Cart"),
             const BottomNavigationBarItem(

@@ -4,7 +4,6 @@ import 'package:trusparemain/views/vendors/screens/landing_screen.dart';
 import 'package:trusparemain/views/vendors/screens/orders_screen.dart';
 import 'package:trusparemain/views/vendors/screens/product_upload_screen.dart';
 import 'package:trusparemain/views/vendors/screens/vendor_account_screen.dart';
-import 'package:trusparemain/views/vendors/screens/vendor_store_screen.dart';
 class MainVendorScreen extends StatefulWidget {
   const MainVendorScreen({super.key});
 
@@ -17,7 +16,6 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
   final List<Widget> _pages = [
     const LandingScreen(),
     const VendorOrderScreen(),
-    const VendorStoreScreen(),
     const ProductUploadScreen(),
     const VendorAccountScreen()
   ];
@@ -42,8 +40,6 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
               activeIcon: const Icon(Iconsax.home, size: 24),),
             const BottomNavigationBarItem(
                 icon: Icon(Iconsax.menu, size: 24), label: "Orders"),
-            const BottomNavigationBarItem(
-                icon: Icon(Iconsax.shop, size: 24), label: "Store"),
             const BottomNavigationBarItem(
                 icon: Icon(Iconsax.box, size: 24), label: "Products"),
             const BottomNavigationBarItem(
