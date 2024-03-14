@@ -14,6 +14,8 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage> {
   int orderQuantity = 1;
   int minimumQuantityLocal = 1;
+  String businessName = '';
+  String selectedAddressId = '';
 
   @override
   void initState() {
@@ -25,6 +27,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           orderQuantity = minimumQuantity;
           minimumQuantityLocal = minimumQuantity;
         });
+        fetchVendorDetails(product['vendorID']);
       }
     });
   }
@@ -78,6 +81,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                       const SizedBox(height: 8.0),
                       Text(
+                        'Provided by: $businessName',
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text(
                         'Category: ${product['category'] ?? ''}',
                         style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
                       ),
@@ -90,6 +98,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       Text(
                         'Description: ${product['productDescription'] ?? ''}',
                         style: const TextStyle(fontSize: 16.0),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Text(
+                        'Select Address:',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                      ),
+                      SizedBox(
+                        height: 210.0,
+                        child: buildAddressList(),
                       ),
                     ],
                   ),
@@ -114,7 +131,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               icon: const Icon(Icons.remove),
             ),
             Text(
-              'Quantity: $orderQuantity',
+              'Quantity:  $orderQuantity',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             IconButton(
@@ -127,7 +144,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                addToCart(context, widget.productID, orderQuantity);
+                addToCart(context, widget.productID, orderQuantity, selectedAddressId);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.cyan,
@@ -144,12 +161,107 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
+  Widget buildAddressList() {
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance.collection('buyers').doc(FirebaseAuth.instance.currentUser!.uid).collection('addresses').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        var addresses = snapshot.data?.docs;
+
+        if (addresses!.isEmpty) {
+          return const Center(child: Text('No addresses found'));
+        }
+
+        return Expanded(
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: addresses.length,
+            itemBuilder: (context, index) {
+              var address = addresses[index];
+              return InkWell(
+                onTap: () {
+                  setState(() {
+                    selectedAddressId = address.id;
+                  });
+                },
+                child: Card(
+                  color: selectedAddressId == address.id ? Colors.blue : null,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Street: ${address['street']}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'City: ${address['city']}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'State: ${address['state']}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'Country: ${address['country']}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'Pincode: ${address['pincode']}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Radio(
+                          value: address.id,
+                          groupValue: selectedAddressId,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedAddressId = value.toString();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   Future<DocumentSnapshot> fetchProductDetails() async {
     try {
       return await FirebaseFirestore.instance.collection('products').doc(widget.productID).get();
     } catch (e) {
       print("Error fetching product details: $e");
       rethrow;
+    }
+  }
+
+  Future<void> fetchVendorDetails(String vendorID) async {
+    try {
+      DocumentSnapshot vendorSnapshot = await FirebaseFirestore.instance.collection('vendors').doc(vendorID).get();
+      if (vendorSnapshot.exists) {
+        setState(() {
+          businessName = vendorSnapshot['businessName'];
+        });
+      } else {
+        setState(() {
+          businessName = 'Unknown';
+        });
+      }
+    } catch (e) {
+      print("Error fetching vendor details: $e");
     }
   }
 
@@ -160,7 +272,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     return totalPrice.toStringAsFixed(2);
   }
 
-  void addToCart(BuildContext context, String productID, int orderQuantity) async {
+  void addToCart(BuildContext context, String productID, int orderQuantity, String selectedAddressId) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
 
@@ -176,6 +288,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           await cartCollection.add({
             'productID': productID,
             'orderQuantity': orderQuantity,
+            'addressID': selectedAddressId,
             'timestamp': FieldValue.serverTimestamp(),
           });
 

@@ -25,14 +25,6 @@ class _LandingScreenState extends State<LandingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await _auth.signOut();
-            },
-            icon: const Icon(Icons.leave_bags_at_home),
-          )
-        ],
         title: const Text('Welcome'),
       ),
       body: SingleChildScrollView(
@@ -147,9 +139,8 @@ class _LandingScreenState extends State<LandingScreen> {
             const SizedBox(height: 8),
             Text(title),
             const SizedBox(height: 4),
-            const Text('Price: \$ ₹price'),
-          ],
-        ),
+            Text('Price: ₹$price'),
+          ],),
         trailing: PopupMenuButton<String>(
           itemBuilder: (context) => [
             const PopupMenuItem<String>(

@@ -150,6 +150,9 @@ class _NewAddressScreenState extends State<NewAddressScreen> {
             .collection('addresses')
             .add(addressData);
 
+        // Add the data to the 'addresses' collection
+        await FirebaseFirestore.instance.collection('addresses').add(addressData);
+
         // Optional: You can add more logic or navigate to a different screen upon success
         // ...
 
@@ -161,4 +164,5 @@ class _NewAddressScreenState extends State<NewAddressScreen> {
       }
     }
   }
+
 }

@@ -55,6 +55,8 @@ dependencies:
   provider: ^6.1.2
   firebase_app_check: ^0.2.1+16
   file_picker: ^6.2.0
+  uuid: ^4.3.3
+  firebase_phone_auth_handler: ^1.0.8
 
 dev_dependencies:
   flutter_test:

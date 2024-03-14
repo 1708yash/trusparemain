@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
+import 'package:trusparemain/views/buyers/pages/orders_list.dart';
 
 import '../../../utils/appbar/appbar.dart';
 import '../../account_type.dart';
@@ -21,7 +22,57 @@ class AccountScreen extends StatelessWidget {
           child: Center(
             child: Column(
               children: [
-                const Text("this is the account screen"),
+
+                // your orders
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const OrdersScreen()),
+                    );
+                  },
+
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration:  BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // Bank Icon
+                        Icon(Icons.done, size: 30, color: Colors.cyan.shade400),
+                        const SizedBox(width: 20,),
+                        // Title and Add Account Text
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Orders',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Your Orders',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20,),
+
+
 
                 // Bank Account Container
                 InkWell(

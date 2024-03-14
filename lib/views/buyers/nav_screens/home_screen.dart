@@ -1,8 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:trusparemain/views/auth/widgets/product_detail_card.dart';
-
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:trusparemain/views/buyers/widgets/banners.dart';
 import 'package:trusparemain/views/buyers/widgets/category_text.dart';
 import '../../../utils/appbar/appbar.dart';
@@ -21,7 +19,7 @@ class Home extends StatelessWidget {
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
             },
-            icon: const Icon(Icons.leave_bags_at_home),
+            icon: const Icon(Icons.logout),
           )
         ],
         showBackArrow: false,
@@ -38,69 +36,19 @@ class Home extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const YSearchBar(),
-              const SizedBox(
-                height: TSizes.spaceBetweenItems,
-              ),
+              SizedBox(height: TSizes.spaceBetweenItems),
               const Banners(),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               const CategoryText(),
-              const SizedBox(
-                height: TSizes.spaceBetweenItems,
-              ),
-              FutureBuilder(
-                future: fetchRecentProducts(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
-
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-
-                  // Display the list of product cards
-                  return SizedBox(
-                    height: 600.0, // Adjust the height as needed
-                    child: ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      itemCount: snapshot.data!.length > 4 ? 4 : snapshot.data?.length,
-                      itemBuilder: (context, index) {
-                        var product = snapshot.data?[index];
-
-                        // Fetch values from the document
-                        String title = product?['productTitle'];
-                        String imageUrl = product?['imageURL'];
-                        double priceOfOneItem = double.parse(product?['priceOfOneItem']);
-                        int minimumQuantity = int.parse(product?['minimumQuantity']);
-                        String category = product?['category'];
-                        String productID= product?['productID'];
-
-                        // Calculate the total price
-                        double totalPrice = priceOfOneItem * minimumQuantity;
-
-                        return Expanded(
-                          child: ProductCard(
-                            imageUrl: imageUrl,
-                            title: title,
-                            price: totalPrice,
-                            category:category,
-                            onTap: () {
-                              // Handle the tap on the product card
-                              // You can navigate to a product details page or perform other actions here
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                    return  ProductDetailPage(productID: productID);
-                                  }));
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
+              const SizedBox(height: TSizes.spaceBetweenItems),
+              // Featured Products
+              _buildSectionTitle('Featured Products'),
+              _buildProductCardsSection(context, 'products'),
+              const SizedBox(height: 20),
+              // Recently Added
+              _buildSectionTitle('Recently Added'),
+              _buildProductCardsSection(context, 'products'),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -108,83 +56,111 @@ class Home extends StatelessWidget {
     );
   }
 
-  Future<List<DocumentSnapshot>> fetchRecentProducts() async {
-    try {
-      var snapshot = await FirebaseFirestore.instance.collection('products').get();
-      return snapshot.docs;
-    } catch (e) {
-      print("Error fetching recent products: $e");
-      return [];
-    }
-  }
-}
-
-class ProductCard extends StatelessWidget {
-  final String imageUrl;
-  final String title;
-  final double price;
-  final VoidCallback onTap;
-  final String category;
-
-  const ProductCard({super.key,
-    required this.imageUrl,
-    required this.title,
-    required this.price,
-    required this.onTap,
-    required this.category,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        elevation: 2.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Display the product image
-            const SizedBox(height: 4,),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.horizontal(left: Radius.circular(8.0)),
-                child: Image.network(
-                  imageUrl,
-                  width: 120.0,
-                  height: 80.0,
-                  fit: BoxFit.fill,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            // Display the product title and price
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '\$$price',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.cyan),
-                ),
-                Text(
-                  category,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.cyan),
-                ),
-              ],
-            ),
-          ],
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );
   }
-}
 
+  Widget _buildProductCardsSection(BuildContext context, String collection) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection(collection).snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: snapshot.data!.docs.map((doc) {
+                final imageURL = doc['imageURL'] as String?;
+                final productTitle = doc['productTitle'] as String?;
+                final minimumQuantity = _parseDouble(doc['minimumQuantity']);
+                final priceOfOneItem = _parseDouble(doc['priceOfOneItem']);
+                final minimumOrderValue = minimumQuantity * priceOfOneItem;
+
+                return GestureDetector(
+                  onTap: () {
+                    // Handle tap on the product card
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 16),
+                    width: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey[200],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            imageURL ?? '',
+                            height: 120,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                productTitle ?? '',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                '₹${priceOfOneItem.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Minimum order: ${minimumQuantity.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          );
+        } else {
+          return const SizedBox();
+        }
+      },
+    );
+  }
+
+  double _parseDouble(dynamic value) {
+    if (value is int) {
+      return value.toDouble();
+    } else if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    } else {
+      return 0.0;
+    }
+  }
+}

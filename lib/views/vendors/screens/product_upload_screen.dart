@@ -82,7 +82,7 @@ class ProductUploadScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(title),
             const SizedBox(height: 4),
-            Text('Price: \$ $price'),
+            Text('Price: ₹$price'),
           ],
         ),
         trailing: PopupMenuButton<String>(

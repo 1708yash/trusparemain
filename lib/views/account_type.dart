@@ -49,7 +49,7 @@ class _AccountTypeState extends State<AccountType> {
               child: TextButton(
                 onPressed: ()=> Get.to(()=> const VendorAuthScreen()),
                 child: const Text(
-                  'Register As A Vendor',
+                  'Enter as Vendor',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 19,
@@ -70,7 +70,7 @@ class _AccountTypeState extends State<AccountType> {
               child: TextButton(
                 onPressed: ()=> Get.to(()=> const BuyersAuthScreen()),
                 child: const Text(
-                  'Register As A Buyer',
+                  'Enter as Buyer',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 19,
