@@ -5,10 +5,10 @@ import 'package:trusparemain/views/buyers/widgets/banners.dart';
 import 'package:trusparemain/views/buyers/widgets/category_text.dart';
 import '../../../utils/appbar/appbar.dart';
 import '../../../utils/constants/sizes.dart';
-import '../widgets/search_bar.dart';
+import '../../auth/widgets/product_detail_card.dart';
 
 class Home extends StatelessWidget {
-  const Home({Key? key});
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,45 +25,49 @@ class Home extends StatelessWidget {
         showBackArrow: false,
         title: const Text("Welcome"),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
-            right: TSizes.defaultSpace,
-            left: TSizes.defaultSpace,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const YSearchBar(),
-              SizedBox(height: TSizes.spaceBetweenItems),
-              const Banners(),
-              const SizedBox(height: 20),
-              const CategoryText(),
-              const SizedBox(height: TSizes.spaceBetweenItems),
-              // Featured Products
-              _buildSectionTitle('Featured Products'),
-              _buildProductCardsSection(context, 'products'),
-              const SizedBox(height: 20),
-              // Recently Added
-              _buildSectionTitle('Recently Added'),
-              _buildProductCardsSection(context, 'products'),
-              const SizedBox(height: 20),
-            ],
+      body: Container(
+        color: Theme.of(context).brightness == Brightness.light
+            ? Colors.white // Light mode background color
+            : Colors.black, // Dark mode background color
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top,
+              right: TSizes.defaultSpace,
+              left: TSizes.defaultSpace,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: TSizes.spaceBetweenItems),
+                const Banners(),
+                const SizedBox(height: 20),
+                const CategoryText(),
+                const SizedBox(height: TSizes.spaceBetweenItems),
+                // Featured Products
+                _buildSectionTitle(context, 'Featured Products'),
+                _buildProductCardsSection(context, 'products'),
+                const SizedBox(height: 20),
+                // Recently Added
+                _buildSectionTitle(context, 'Recently Added'),
+                _buildProductCardsSection(context, 'products'),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Text(
         title,
-        style: TextStyle(
-          fontSize: 20,
+        style: Theme.of(context).textTheme.headlineMedium!.copyWith(
           fontWeight: FontWeight.bold,
+          color: Colors.cyan, // Title text color
         ),
       ),
     );
@@ -82,18 +86,25 @@ class Home extends StatelessWidget {
                 final productTitle = doc['productTitle'] as String?;
                 final minimumQuantity = _parseDouble(doc['minimumQuantity']);
                 final priceOfOneItem = _parseDouble(doc['priceOfOneItem']);
-                final minimumOrderValue = minimumQuantity * priceOfOneItem;
+
+                final productID = doc.id; // Fetch product ID from document ID
 
                 return GestureDetector(
                   onTap: () {
-                    // Handle tap on the product card
+                    // Navigate to ProductDetailPage with productID parameter
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetailPage(productID: productID),
+                      ),
+                    );
                   },
                   child: Container(
                     margin: const EdgeInsets.only(right: 16),
                     width: 200,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color: Colors.grey[200],
+                      color: Colors.cyanAccent.withOpacity(0.2), // Product card background color
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,25 +125,25 @@ class Home extends StatelessWidget {
                             children: [
                               Text(
                                 productTitle ?? '',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 '₹${priceOfOneItem.toStringAsFixed(2)}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.blue,
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
                                 'Minimum order: ${minimumQuantity.toStringAsFixed(2)}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey,
                                 ),

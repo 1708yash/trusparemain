@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
 
 class StoreDetails extends StatefulWidget {
-  const StoreDetails({super.key});
+  const StoreDetails({Key? key}) : super(key: key);
 
   @override
   _StoreDetailsState createState() => _StoreDetailsState();
@@ -15,9 +15,9 @@ class StoreDetails extends StatefulWidget {
 
 class _StoreDetailsState extends State<StoreDetails> {
   late String vendorId;
-  late String profileImage;
+  late String profileImage = ''; // Initialize with empty string
   late String businessName;
-  late String email; // Newly added field
+  late String email;
   late String streetAddress;
   late String cityValue;
   late String stateValue;
@@ -25,7 +25,7 @@ class _StoreDetailsState extends State<StoreDetails> {
   late String pinCode;
 
   TextEditingController businessNameController = TextEditingController();
-  TextEditingController emailController = TextEditingController(); // Newly added controller
+  TextEditingController emailController = TextEditingController();
   TextEditingController streetAddressController = TextEditingController();
   TextEditingController cityController = TextEditingController();
   TextEditingController stateController = TextEditingController();
@@ -45,9 +45,9 @@ class _StoreDetailsState extends State<StoreDetails> {
       var data = snapshot.data() as Map<String, dynamic>;
 
       setState(() {
-        profileImage = data['profileImage'];
+        profileImage = data['profileImage'] ?? ''; // Handle case where profileImage is null
         businessName = data['businessName'];
-        email = data['email']; // Newly added field
+        email = data['email'];
         streetAddress = data['streetAddress'];
         cityValue = data['cityValue'];
         stateValue = data['stateValue'];
@@ -55,7 +55,7 @@ class _StoreDetailsState extends State<StoreDetails> {
         pinCode = data['pinCode'];
 
         businessNameController.text = businessName;
-        emailController.text = email; // Newly added controller
+        emailController.text = email;
         streetAddressController.text = streetAddress;
         cityController.text = cityValue;
         stateController.text = stateValue;
@@ -63,6 +63,7 @@ class _StoreDetailsState extends State<StoreDetails> {
         pinCodeController.text = pinCode;
       });
     } catch (e) {
+      // Handle error silently
       print("Error fetching vendor profile: $e");
     }
   }
@@ -71,19 +72,17 @@ class _StoreDetailsState extends State<StoreDetails> {
     try {
       await FirebaseFirestore.instance.collection('vendors').doc(vendorId).update({
         'businessName': businessNameController.text,
-        'email': emailController.text, // Newly added field
+        'email': emailController.text,
         'streetAddress': streetAddressController.text,
         'cityValue': cityController.text,
         'stateValue': stateController.text,
         'countryValue': countryController.text,
         'pinCode': pinCodeController.text,
-        // Add other fields as needed
       });
 
-      // Optionally, you can fetch the updated data again
-      // to reflect the changes in the UI
       fetchVendorProfile();
     } catch (e) {
+      // Handle error silently
       print("Error updating vendor profile: $e");
     }
   }
@@ -105,10 +104,9 @@ class _StoreDetailsState extends State<StoreDetails> {
           'profileImage': imageUrl,
         });
 
-        // Optionally, you can fetch the updated data again
-        // to reflect the changes in the UI
         fetchVendorProfile();
       } catch (e) {
+        // Handle error silently
         print("Error uploading image: $e");
       }
     }
@@ -125,251 +123,74 @@ class _StoreDetailsState extends State<StoreDetails> {
           padding: const EdgeInsets.all(TSizes.defaultSpace),
           child: Column(
             children: [
-              // Display the profile image with an edit icon
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  Image.network(
-                    profileImage,
-                    width: double.infinity,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
                   InkWell(
                     onTap: () {
                       uploadImage();
                     },
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white, // Background color
-                      ),
-                      padding: const EdgeInsets.all(8),
-                      child: const Icon(
-                        Icons.edit,
-                        color: Colors.blue,
-                        size: 40,
-                      ),
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundImage: profileImage.isNotEmpty ? NetworkImage(profileImage) : null,
+                      backgroundColor: Colors.grey[200],
+                      child: profileImage.isEmpty ? Icon(Icons.person, size: 60, color: Colors.grey) : null,
+                    ),
+                  ),
+                  const Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.cyan,
+                      child: Icon(Icons.edit, color: Colors.white),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              // Display the business name with an edit icon
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: businessNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Business Name',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Implement the logic for editing the business name
-                      updateProfile();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan, // Background color
-                    ),
-                    child: const Text(
-                      'Update',
-                      style: TextStyle(color: Colors.white), // Text color
-                    ),
-                  ),
-
-                ],
-              ),
+              _buildTextField(businessNameController, 'Business Name'),
               const SizedBox(height: 16),
-              // Display the email with an edit icon
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Implement the logic for editing the business name
-                      updateProfile();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan, // Background color
-                    ),
-                    child: const Text(
-                      'Update',
-                      style: TextStyle(color: Colors.white), // Text color
-                    ),
-                  ),
-                ],
-              ),
+              _buildTextField(emailController, 'Email'),
               const SizedBox(height: 16),
-              // Add other fields similar to the business name
-              // ...
-
-              // Continue adding similar sections for the other fields
-              // ...
-              // street address
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: streetAddressController,
-                      decoration: const InputDecoration(
-                        labelText: 'Edit Street Address',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Implement the logic for editing the business name
-                      updateProfile();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan, // Background color
-                    ),
-                    child: const Text(
-                      'Update',
-                      style: TextStyle(color: Colors.white), // Text color
-                    ),
-                  ),
-                ],
-              ),
+              _buildTextField(streetAddressController, 'Street Address'),
               const SizedBox(height: 16),
-// city edit
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: cityController,
-                      decoration: const InputDecoration(
-                        labelText: 'Edit City Name',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Implement the logic for editing the business name
-                      updateProfile();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan, // Background color
-                    ),
-                    child: const Text(
-                      'Update',
-                      style: TextStyle(color: Colors.white), // Text color
-                    ),
-                  ),
-                ],
-              ),
+              _buildTextField(cityController, 'City Name'),
               const SizedBox(height: 16),
-
-              // state edit
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: stateController,
-                      decoration: const InputDecoration(
-                        labelText: 'Edit State Name',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Implement the logic for editing the business name
-                      updateProfile();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan, // Background color
-                    ),
-                    child: const Text(
-                      'Update',
-                      style: TextStyle(color: Colors.white), // Text color
-                    ),
-                  ),
-
-                ],
-              ),
+              _buildTextField(stateController, 'State Name'),
               const SizedBox(height: 16),
-              // country edit
-              // country edit
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: countryController,
-                      decoration: const InputDecoration(
-                        labelText: 'Edit Country Name',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Implement the logic for editing the business name
-                      updateProfile();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan, // Background color
-                    ),
-                    child: const Text(
-                      'Update',
-                      style: TextStyle(color: Colors.white), // Text color
-                    ),
-                  ),
-                ],
-              ),
+              _buildTextField(countryController, 'Country Name'),
               const SizedBox(height: 16),
-
-              // country edit
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: pinCodeController,
-                      decoration: const InputDecoration(
-                        labelText: 'Edit PinCode',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Implement the logic for editing the business name
-                      updateProfile();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan, // Background color
-                    ),
-                    child: const Text(
-                      'Update',
-                      style: TextStyle(color: Colors.white), // Text color
-                    ),
-                  ),
-                ],
-              ),
+              _buildTextField(pinCodeController, 'PinCode'),
               const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  updateProfile();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.cyan,
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                ),
+                child: const Text(
+                  'Update',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String labelText) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: const OutlineInputBorder(),
+        focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.cyan),
         ),
       ),
     );

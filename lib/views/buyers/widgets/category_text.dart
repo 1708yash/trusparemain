@@ -36,7 +36,10 @@ class _CategoryTextState extends State<CategoryText> {
       children: [
         const Text(
           "Categories",
-          style: TextStyle(fontSize: 19),
+          style: TextStyle(
+            fontSize: 19,
+            color: Colors.black, // Default text color
+          ),
         ),
         const SizedBox(height: 20,),
         SizedBox(
@@ -55,14 +58,17 @@ class _CategoryTextState extends State<CategoryText> {
                         onPressed: () {},
                         label: Text(
                           _categories[index],
-                          style: const TextStyle(color: Colors.black),
+                          style: TextStyle(
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white // White text color in dark mode
+                                : Colors.black, // Black text color in light mode
+                          ),
                         ),
                       ),
                     );
                   },
                 ),
               ),
-
             ],
           ),
         ),

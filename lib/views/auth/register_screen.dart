@@ -5,6 +5,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:trusparemain/controllers/auth_controller.dart';
 import 'package:trusparemain/utils/show_snackBar.dart';
+import 'package:trusparemain/views/auth/terms_and_conditions.dart';
 
 import '../../utils/constants/sizes.dart';
 import 'login_screen.dart';
@@ -71,7 +72,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(left: TSizes.defaultSpace, right: TSizes.defaultSpace),
         child: TextButton(
-          onPressed: () {},
+          onPressed: () {Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const TermsAndConditions()),
+          );},
           child: const Text('Terms and Conditions *'),
         ),
       ),

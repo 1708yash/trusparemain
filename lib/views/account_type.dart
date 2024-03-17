@@ -57,8 +57,7 @@ class _AccountTypeState extends State<AccountType> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ),
+              ),),
             const SizedBox(height: 36),
             Container(
               width: MediaQuery.of(context).size.width - 120,

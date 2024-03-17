@@ -57,7 +57,8 @@ class VendorController {
   }
 
   // function to pick store data
-  Future<String> signUpUSers(
+  // Function to sign up users with email and password
+  Future<String> signUpUsers(
       String businessName,
       String email,
       String phoneNumber,
@@ -66,29 +67,37 @@ class VendorController {
       String cityValue,
       String streetAddress,
       String pinCode,
-      isGSTRegistered,
+      bool isGSTRegistered,
       String gstNumber,
-      agreeToTerms,
+      bool agreeToTerms,
       Uint8List? profileImage,
-      Uint8List? verificationDoc, String password) async {
+      Uint8List? verificationDoc,
+      String password,
+      ) async {
     String res = "Something went wrong";
     try {
-      // Create user with email and password
       if (email.isNotEmpty &&
           businessName.isNotEmpty &&
           phoneNumber.isNotEmpty &&
-          password.isNotEmpty && profileImage != null &&
-          verificationDoc != null && countryValue.isNotEmpty &&
-          stateValue.isNotEmpty && cityValue.isNotEmpty &&
+          password.isNotEmpty &&
+          profileImage != null &&
+          verificationDoc != null &&
+          countryValue.isNotEmpty &&
+          stateValue.isNotEmpty &&
+          cityValue.isNotEmpty &&
           streetAddress.isNotEmpty &&
           agreeToTerms) {
-        // then create the user
-        UserCredential cred = await _auth.createUserWithEmailAndPassword(
-            email: email, password: password);
-        String profileImageUrl = await _uploadVendorImageToStore(profileImage);
-        String verificationDocUrl = await _uploadVendorVerificationToStore(
-            verificationDoc);
-        res = 'success';
+        // Create user with email and password
+        final UserCredential cred = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        // Send email verification
+        await cred.user!.sendEmailVerification();
+        // Upload profile image and verification document
+        final String profileImageUrl = await _uploadVendorImageToStore(profileImage);
+        final String verificationDocUrl = await _uploadVendorVerificationToStore(verificationDoc);
+        // Save user details to Firestore
         await _firestore.collection('vendors').doc(cred.user!.uid).set({
           'businessName': businessName,
           'email': email,
@@ -105,11 +114,12 @@ class VendorController {
           'verificationDoc': verificationDocUrl,
           'VendorID': cred.user!.uid,
         });
+        res = 'success';
       } else {
         res = 'Fields must not be empty';
       }
     } catch (e) {
-      res = e.toString();
+      res = 'Verification Email Sent Verify your email to login';
     }
     return res;
   }

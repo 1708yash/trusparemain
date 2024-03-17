@@ -5,7 +5,10 @@ import 'package:trusparemain/views/buyers/pages/orders_list.dart';
 
 import '../../../utils/appbar/appbar.dart';
 import '../../account_type.dart';
+import '../pages/bank_details.dart';
+import '../pages/edit_buyer_profile.dart';
 import '../widgets/address_screen.dart';
+import '../widgets/contact_us.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -18,33 +21,35 @@ class AccountScreen extends StatelessWidget {
         title: Text("Manage Account"),
       ),
       body: SingleChildScrollView(
-        child: Padding(padding: const EdgeInsets.all(TSizes.defaultSpace),
+        child: Padding(
+          padding: const EdgeInsets.all(TSizes.defaultSpace),
           child: Center(
             child: Column(
               children: [
-
                 // your orders
                 InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const OrdersScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const OrdersScreen()),
                     );
                   },
-
                   child: Container(
                     width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration:  BoxDecoration(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                     ),
-
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         // Bank Icon
                         Icon(Icons.done, size: 30, color: Colors.cyan.shade400),
-                        const SizedBox(width: 20,),
+                        const SizedBox(
+                          width: 20,
+                        ),
                         // Title and Add Account Text
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,32 +75,142 @@ class AccountScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20,),
+                const SizedBox(
+                  height: 20,
+                ),
+
+// bank details
+
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const BankDetails()),
+                    );
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // Bank Icon
+                        Icon(Icons.account_balance, size: 30, color: Colors.cyan.shade400),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        // Title and Add Account Text
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Bank Details',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Enter bank details',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
 
 
-
+                // update user profile
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const BuyerUpdateDetails()),
+                    );
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // Bank Icon
+                        Icon(Icons.contact_page, size: 30, color: Colors.cyan.shade400),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        // Title and Add Account Text
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Your Profile',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Update/Manage Profile',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
                 // Bank Account Container
                 InkWell(
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const AddressScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const AddressScreen()),
                     );
                   },
-
                   child: Container(
                     width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration:  BoxDecoration(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                     ),
-
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         // Bank Icon
-                        Icon(Icons.location_city, size: 30, color: Colors.cyan.shade400),
-                        const SizedBox(width: 20,),
+                        Icon(Icons.location_city,
+                            size: 30, color: Colors.cyan.shade400),
+                        const SizedBox(
+                          width: 20,
+                        ),
                         // Title and Add Account Text
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +236,62 @@ class AccountScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20,),
+                const SizedBox(
+                  height: 20,
+                ),
+                // contact us page
+
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ContactUsPage()),
+                    );
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // Bank Icon
+                        Icon(Icons.contact_page, size: 30, color: Colors.cyan.shade400),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        // Title and Add Account Text
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Contact Us',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Raise Query/Issues',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
                 // Log Out Button
                 Container(
                   width: MediaQuery.of(context).size.width - 120,
@@ -136,7 +306,8 @@ class AccountScreen extends StatelessWidget {
                       await FirebaseAuth.instance.signOut();
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const AccountType()),
+                        MaterialPageRoute(
+                            builder: (context) => const AccountType()),
                       );
                     },
                     child: const Text(
@@ -151,9 +322,11 @@ class AccountScreen extends StatelessWidget {
                   ),
                 ),
 
+
               ],
             ),
-          ),),
+          ),
+        ),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:country_state_city_picker/country_state_city_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,6 +8,7 @@ import 'package:trusparemain/controllers/vendor_register_controller.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
 import 'package:trusparemain/utils/show_snackBar.dart';
 import 'package:trusparemain/views/vendors/auth/vendor_login_screen.dart';
+import 'package:trusparemain/views/vendors/auth/verification_info.dart';
 
 class VendorRegistrationScreen extends StatefulWidget {
   const VendorRegistrationScreen({Key? key}) : super(key: key);
@@ -35,11 +35,6 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
   late String streetAddress;
   late String pinCode;
   late String gstNumber;
-  late String verificationId;
-  late TextEditingController _otpController;
-
-  bool _otpSent = false;
-  bool _otpVerified = false;
 
   selectGalleryImage() async {
     Uint8List img =
@@ -67,102 +62,34 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
 
   _saveVendorDetails() async {
     if (_formKey.currentState!.validate()) {
-      if (_otpVerified) {
-        await _vendorController.signUpUSers(
-          businessName,
-          email,
-          phoneNumber,
-          countryValue,
-          stateValue,
-          cityValue,
-          streetAddress,
-          pinCode,
-          _isGSTRegistered,
-          gstNumber,
-          _agreeToTerms,
-          _profileImage,
-          _verificationDoc,
-          password,
-        );
+      String result = await _vendorController.signUpUsers(
+        businessName,
+        email,
+        phoneNumber,
+        countryValue,
+        stateValue,
+        cityValue,
+        streetAddress,
+        pinCode,
+        _isGSTRegistered,
+        gstNumber,
+        _agreeToTerms,
+        _profileImage,
+        _verificationDoc,
+        password,
+      );
+
+      if (result == 'success') {
+        // Show snackbar to inform user that verification email has been sent
+        showSnack(context, 'Verification email has been sent. Please check your inbox.');
+        // Navigate to the verification page
+
       } else {
-        showSnack(context, 'Please verify OTP first');
+        showSnack(context, 'Error: $result');
       }
     } else {
       showSnack(context, 'Fill all the required Fields');
     }
-  }
-
-  _sendOTP() async {
-    verificationCompleted(PhoneAuthCredential phoneAuthCredential) async {
-      // Auto-retrieval of the SMS code completed.
-      // Update the UI and attempt sign in with the phoneAuthCredential
-      await FirebaseAuth.instance.signInWithCredential(phoneAuthCredential);
-      setState(() {
-        _otpVerified = true;
-      });
-    }
-
-    verificationFailed(FirebaseAuthException authException) {
-      // Handle verification failed scenario
-      setState(() {
-        _otpSent = false;
-      });
-      showSnack(context, 'Failed to send OTP. Please try again.');
-    }
-
-    codeSent(String verificationId, int? forceResendingToken) async {
-      // Handle sent OTP scenario
-      setState(() {
-        this.verificationId = verificationId;
-        _otpSent = true;
-      });
-    }
-
-    codeAutoRetrievalTimeout(String verificationId) {
-      // Handle timeout scenario
-    }
-
-    try {
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: '+91$phoneNumber',
-        timeout: const Duration(seconds: 60),
-        verificationCompleted: verificationCompleted,
-        verificationFailed: verificationFailed,
-        codeSent: codeSent,
-        codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
-      );
-    } catch (e) {
-      print('Error sending OTP: $e');
-      showSnack(context, 'Error sending OTP. Please try again.');
-    }
-  }
-
-  _verifyOTP(String otp) async {
-    try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: otp,
-      );
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      setState(() {
-        _otpVerified = true;
-      });
-    } catch (e) {
-      print('Error verifying OTP: $e');
-      showSnack(context, 'Invalid OTP. Please try again.');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _otpController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _otpController.dispose();
-    super.dispose();
   }
 
   @override
@@ -286,6 +213,26 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                     const SizedBox(height: 12),
                     TextFormField(
                       onChanged: (value) {
+                        phoneNumber = value;
+                      },
+                      validator: (value) {
+                        if (value!.isEmpty || value.length != 10) {
+                          return 'Enter a valid 10 digit phone number';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Store or Owner Phone Number',
+                        prefixIcon: const Icon(Icons.phone),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      onChanged: (value) {
                         password = value;
                       },
                       validator: (value) {
@@ -318,6 +265,26 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                       decoration: InputDecoration(
                         labelText: 'Street Address',
                         prefixIcon: const Icon(Icons.location_history),
+                        border: UnderlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      onChanged: (value) {
+                        pinCode = value;
+                      },
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'PinCode can not be left empty';
+                        } else {
+                          return null;
+                        }
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'PinCode',
+                        prefixIcon: const Icon(Icons.pin_drop ),
                         border: UnderlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -425,65 +392,6 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    TextFormField(
-                      onChanged: (value) {
-                        phoneNumber = value;
-                      },
-                      validator: (value) {
-                        if (value!.isEmpty || value.length != 10) {
-                          return 'Enter a valid 10 digit phone number';
-                        }
-                        return null;
-                      },
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Store or Owner Phone Number',
-                        prefixIcon: const Icon(Icons.phone),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ElevatedButton(
-                      onPressed: () {
-                        _sendOTP();
-                      },
-                      style: ButtonStyle(
-                        backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.cyan),
-                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                          const EdgeInsets.symmetric(horizontal: 20.0),
-                        ),
-                      ),
-                      child: const Text('Generate OTP'),
-                    ),
-                    const SizedBox(height: 12),
-                    if (!_otpVerified)
-                      Column(
-                        children: [
-                          TextFormField(
-                            controller: _otpController,
-                            decoration: InputDecoration(
-                              labelText: 'Enter OTP',
-                              prefixIcon: const Icon(Icons.phone),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            keyboardType: TextInputType.number,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter OTP';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 12),
-
-                        ],
-                      ),
-                    const SizedBox(height: 12),
                     Row(
                       children: [
                         Checkbox(
@@ -505,18 +413,10 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: TextButton(
-                        onPressed: _agreeToTerms
-                            ? () {
-                          if (_otpVerified || !_otpSent) {
-                            _verifyOTP(_otpController.text);
-                            _saveVendorDetails();
-                          } else {
-                            _sendOTP();
-                          }
-                        }
-                            : null,
+                        onPressed: _agreeToTerms ? _saveVendorDetails : null,
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan.shade400),
+                          backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.cyan.shade400),
                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),

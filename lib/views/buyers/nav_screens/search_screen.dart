@@ -45,23 +45,23 @@ class _SearchScreenState extends State<SearchScreen> {
                 stream: getProductsStream(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return const Center(child: CircularProgressIndicator());
                   }
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return const Center(child: Text("No matching products found."));
                   }
 
-                  return ListView.builder(
+                  return GridView.builder(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // Set the number of grid columns
+                      crossAxisSpacing: 8.0,
+                      mainAxisSpacing: 8.0,
+                    ),
                     itemCount: snapshot.data!.docs.length,
                     itemBuilder: (context, index) {
                       var product = snapshot.data!.docs[index];
-                      try {
-                        return ProductCard(product: product);
-                      } catch (e) {
-                        print('Error building product card: $e');
-                        return const SizedBox();
-                      }
+                      return ProductCard(product: product);
                     },
                   );
                 },
@@ -95,20 +95,18 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String imageURL = product['imageURL'];
-    String title = product['productTitle'];
-    double priceOfOneItem;
-    int minimumQuantity;
-    double totalPrice;
+    String imageURL = product['imageURL'] ?? '';
+    String title = product['productTitle'] ?? '';
+    double priceOfOneItem = 0.0;
+    int minimumQuantity = 0;
+    double totalPrice = 0.0;
 
     try {
       priceOfOneItem = double.parse(product['priceOfOneItem'].toString());
       minimumQuantity = int.parse(product['minimumQuantity'].toString());
       totalPrice = priceOfOneItem * minimumQuantity;
     } catch (e) {
-      print('Error parsing product data: $e');
-      // Handle error gracefully, e.g., display default values or placeholder
-      return const SizedBox();
+      return const SizedBox(); // Return an empty SizedBox if an error occurs
     }
 
     return GestureDetector(
@@ -123,16 +121,36 @@ class ProductCard extends StatelessWidget {
       },
       child: Card(
         margin: const EdgeInsets.all(8.0),
-        child: ListTile(
-          leading: Image.network(imageURL, width: 50, height: 50),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title),
-              Text('Price: ₹ ${totalPrice.toStringAsFixed(2)}'),
-            ],
-          ),
-          // Add more details as needed
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Image.network(
+                  imageURL,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text('Price: ₹ ${totalPrice.toStringAsFixed(2)}'),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

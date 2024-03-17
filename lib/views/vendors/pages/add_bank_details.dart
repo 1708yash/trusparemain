@@ -18,7 +18,7 @@ class _AddBankAccountState extends State<AddBankAccount> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Add this line
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Future<void> addBankDetails() async {
     try {
@@ -43,34 +43,41 @@ class _AddBankAccountState extends State<AddBankAccount> {
             'bankName': _bankNameController.text,
             'branch': _branchController.text,
             'upiId': _upiIdController.text,
-            // Add other bank details fields as needed
           });
 
-          // Successfully added bank details, show a
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Bank details added successfully!'),
               duration: Duration(seconds: 2),
-
             ),
           );
 
-          // Navigate back to the previous page
           Navigator.pop(context);
         } else {
-          print('Vendor not found for the current user.');
-          // Handle case where vendor is not found
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Vendor not found for the current user.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
         }
       } else {
-        print('User not logged in.');
-        // Handle case where user is not logged in
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('User not logged in.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
-      print('Error adding bank details: $e');
-      // Handle error adding bank details
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error adding bank details. Please try again.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -81,66 +88,95 @@ class _AddBankAccountState extends State<AddBankAccount> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(TSizes.defaultSpace),
-          child: Form( // Wrap with Form widget
+          child: Form(
             key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Add bank account details here"),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 TextFormField(
                   controller: _accountNumberController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Account Number',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  // validator: (value) => _validateAccountNumber(value),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter account number';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _bankNameController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Bank Name',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  // validator: (value) => _validateBankName(value),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter bank name';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _branchController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Branch',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  // validator: (value) => _validateBranch(value),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter branch';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _upiIdController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'UPI ID',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  // validator: (value) => _validateUpiId(value),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter UPI ID';
+                    }
+                    return null;
+                  },
                 ),
-                const SizedBox(height: 16),
-                Container(
-                  width: MediaQuery.of(context).size.width - 120,
-                  height: 50,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.cyan.shade400,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: TextButton(
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
                     onPressed: () {
-                      // Validate the form
                       if (_formKey.currentState?.validate() == true) {
-                        // Call a function to add bank details
                         addBankDetails();
                       }
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.cyan,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                     child: const Text(
-                      'Add Bank Details ',
+                      'Add Bank Details',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 19,
-                        letterSpacing: 2,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

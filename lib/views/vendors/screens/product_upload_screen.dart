@@ -38,25 +38,24 @@ class ProductUploadScreen extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("No products available"));
+            return const Center(child: Text("No products available", style: TextStyle(color: Colors.cyan)));
           }
 
-          return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(TSizes.defaultSpace),
-              child: Column(
-                children: [
-                  for (var doc in snapshot.data!.docs)
-                    _buildProductCard(
-                      context,
-                      doc.id, // Document ID for deletion
-                      doc['imageURL'],
-                      doc['productTitle'],
-                      doc['priceOfOneItem'].toString(),
-                      user,
-                    ),
-                ],
-              ),
+          return Padding(
+            padding: const EdgeInsets.all(TSizes.defaultSpace),
+            child: ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                var doc = snapshot.data!.docs[index];
+                return _buildProductCard(
+                  context,
+                  doc.id, // Document ID for deletion
+                  doc['imageURL'],
+                  doc['productTitle'],
+                  doc['priceOfOneItem'].toString(),
+                  user,
+                );
+              },
             ),
           );
         },
@@ -73,44 +72,45 @@ class ProductUploadScreen extends StatelessWidget {
       User? user,
       ) {
     return Card(
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
         contentPadding: const EdgeInsets.all(8),
-        leading: Image.network(imageUrl, height: 100, width: 100, fit: BoxFit.cover),
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(imageUrl, height: 100, width: 100, fit: BoxFit.cover),
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
-            Text(title),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 4),
-            Text('Price: ₹$price'),
+            Text('Price: ₹$price', style: TextStyle(color: Colors.grey[600])),
           ],
         ),
-        trailing: PopupMenuButton<String>(
-          itemBuilder: (context) => [
-            const PopupMenuItem<String>(
-              value: 'delete',
-              child: Text('Delete'),
-            ),
-          ],
-          onSelected: (value) {
-            if (value == 'delete') {
-              // Delete the product from Firebase
-              FirebaseFirestore.instance
-                  .collection('vendors')
-                  .doc(user?.uid)
-                  .collection('products')
-                  .doc(documentId)
-                  .delete()
-                  .then((_) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Product deleted successfully')),
-                );
-              }).catchError((error) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to delete product: $error')),
-                );
-              });
-            }
+        trailing: IconButton(
+          icon: const Icon(Icons.delete, color: Colors.black),
+          onPressed: () {
+            // Delete the product from Firebase
+            FirebaseFirestore.instance
+                .collection('vendors')
+                .doc(user?.uid)
+                .collection('products')
+                .doc(documentId)
+                .delete()
+                .then((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Product deleted successfully')),
+              );
+            }).catchError((error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to delete product: $error')),
+              );
+            });
           },
         ),
       ),

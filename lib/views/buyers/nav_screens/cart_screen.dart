@@ -21,6 +21,40 @@ class _CartScreenState extends State<CartScreen> {
     // Retrieve current user ID from Firebase Authentication
     final User? user = FirebaseAuth.instance.currentUser;
     currentUserId = user?.uid;
+    // Fetch cart data when the widget initializes
+    fetchCartData();
+  }
+
+  // Function to fetch cart data and update totalAmount
+  Future<void> fetchCartData() async {
+    double amount = 0.0;
+    try {
+      final QuerySnapshot cartSnapshot = await FirebaseFirestore.instance
+          .collection('buyers')
+          .doc(currentUserId)
+          .collection('cart')
+          .get();
+
+      for (var cartItem in cartSnapshot.docs) {
+        String productID = cartItem['productID'];
+        int orderQuantity = cartItem['orderQuantity'];
+
+        DocumentSnapshot productDoc = await FirebaseFirestore.instance
+            .collection('products')
+            .doc(productID)
+            .get();
+        if (productDoc.exists) {
+          double priceOfOneItem = double.parse(
+              (productDoc['priceOfOneItem'] ?? 0.0).toString());
+          amount += priceOfOneItem * orderQuantity;
+        }
+      }
+    } catch (e) {
+      print('Error fetching cart data: $e');
+    }
+    setState(() {
+      totalAmount = amount;
+    });
   }
 
   Future<void> placeOrder() async {
@@ -50,7 +84,8 @@ class _CartScreenState extends State<CartScreen> {
           }
           productsByVendor[vendorID]!.add({
             'productID': productID,
-            'orderQuantity': int.parse(cartItem['orderQuantity'].toString()), // Parse orderQuantity as int
+            'orderQuantity':
+            int.parse(cartItem['orderQuantity'].toString()), // Parse orderQuantity as int
             'addressID': cartItem['addressID']
           });
         }
@@ -70,10 +105,12 @@ class _CartScreenState extends State<CartScreen> {
           addressIDs.add(product['addressID']);
 
           // Parse priceOfOneItem directly into a double
-          double priceOfOneItem = double.parse((await FirebaseFirestore.instance
+          double priceOfOneItem = double.parse((await FirebaseFirestore
+              .instance
               .collection('products')
               .doc(product['productID'])
-              .get())['priceOfOneItem']);
+              .get())['priceOfOneItem']
+              .toString());
 
           vendorTotalAmount += priceOfOneItem * product['orderQuantity'];
         }
@@ -178,9 +215,6 @@ class _CartScreenState extends State<CartScreen> {
               );
             }
 
-            // Reset total amount on each rebuild
-            totalAmount = 0.0;
-
             return ListView.builder(
               itemCount: snapshot.data?.docs.length,
               itemBuilder: (context, index) {
@@ -207,40 +241,23 @@ class _CartScreenState extends State<CartScreen> {
                     var productData = productSnapshot.data;
                     String imageURL = productData?['imageURL'];
                     String title = productData?['productTitle'];
-                    double priceOfOneItem =
-                    double.parse(productData!['priceOfOneItem'].toString());
-
-                    // Calculate total amount for each item
-                    double itemTotal = priceOfOneItem * orderQuantity;
-                    totalAmount += itemTotal;
 
                     return Card(
                       child: ListTile(
                         leading: Image.network(imageURL),
                         title: Text(title),
                         subtitle: Text('Quantity: $orderQuantity'),
-                        trailing: PopupMenuButton(
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              child: ListTile(
-                                title: const Text('Delete'),
-                                onTap: () {
-                                  // Implement deletion logic here
-                                  FirebaseFirestore.instance
-                                      .collection('buyers')
-                                      .doc(currentUserId)
-                                      .collection('cart')
-                                      .doc(cartItem?.id)
-                                      .delete();
-
-                                  // Update total amount on deletion
-                                  setState(() {
-                                    totalAmount -= itemTotal;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            // Implement deletion logic here
+                            FirebaseFirestore.instance
+                                .collection('buyers')
+                                .doc(currentUserId)
+                                .collection('cart')
+                                .doc(cartItem?.id)
+                                .delete();
+                          },
                         ),
                       ),
                     );
@@ -263,7 +280,9 @@ class _CartScreenState extends State<CartScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.cyan,
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 10.0),
+                  horizontal: 20.0,
+                  vertical: 10.0,
+                ),
               ),
               child: Text(
                 'Confirm Order - ₹ ${totalAmount.toStringAsFixed(2)}',

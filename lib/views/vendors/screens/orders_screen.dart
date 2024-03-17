@@ -13,7 +13,6 @@ class VendorOrderScreen extends StatefulWidget {
 class _VendorOrderScreenState extends State<VendorOrderScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String? currentUserId;
-  String? selectedOrderID;
 
   @override
   void initState() {
@@ -47,16 +46,14 @@ class _VendorOrderScreenState extends State<VendorOrderScreen> {
                   Tab(text: 'Recent Orders'),
                   Tab(text: 'Packed'),
                   Tab(text: 'Shipped'),
-
                 ],
               ),
               Expanded(
                 child: TabBarView(
                   children: [
                     buildOrdersView('recent'),
-                    buildPackedView('packed'), // Placeholder for other tabs
+                    buildPackedView('packed'),
                     buildShippedView('shipped'),
-
                   ],
                 ),
               ),
@@ -78,14 +75,14 @@ class _VendorOrderScreenState extends State<VendorOrderScreen> {
                 .doc(currentUserId) // Use currentUserId
                 .collection('orders')
                 .snapshots()
-                : Stream.empty(),
+                : const Stream.empty(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return Center(
+                return const Center(
                   child: Text('No orders available.'),
                 );
               }
@@ -94,77 +91,114 @@ class _VendorOrderScreenState extends State<VendorOrderScreen> {
                 children: snapshot.data!.docs.map((orderDoc) {
                   final orderID = orderDoc['orderID'] as String?;
                   final products = orderDoc['products'] as List?;
-                  final orderQuantities = orderDoc['orderQuantities'] as List?;
+                  final orderQuantities =
+                  orderDoc['orderQuantities'] as List?;
+                  final addressIDs = orderDoc['addressIDs'] as List?;
 
-                  if (orderID == null || products == null ||
+                  if (orderID == null ||
+                      products == null ||
                       orderQuantities == null) {
-                    return SizedBox(); // Skip this order if data is not in the correct format
+                    return const SizedBox(); // Skip this order if data is not in the correct format
                   }
 
-                  return Card(
-                    margin: EdgeInsets.all(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          leading: Icon(Icons.shopping_cart),
-                          title: Text('Order ID: $orderID'),
-                          trailing: ElevatedButton(
-                            onPressed: () {
-                              moveOrderToPacked(orderDoc);
-                            },
-                            child: Text('Packed'),
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Column(
-                          children: List.generate(
-                            products.length,
-                                (index) {
-                              final productID = products[index] as String?;
-                              final quantity = orderQuantities[index] as int?;
+                  return FutureBuilder<List<DocumentSnapshot>>(
+                    future: fetchAddresses(addressIDs),
+                    builder: (context, addressSnapshot) {
+                      if (addressSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
 
-                              return FutureBuilder<DocumentSnapshot>(
-                                future: FirebaseFirestore.instance.collection(
-                                    'products').doc(productID).get(),
-                                builder: (context, productSnapshot) {
-                                  if (productSnapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return CircularProgressIndicator();
-                                  }
+                      final addresses = addressSnapshot.data ?? [];
 
-                                  if (!productSnapshot.hasData ||
-                                      !productSnapshot.data!.exists) {
-                                    return SizedBox(); // Skip this product if data is not available
-                                  }
+                      return Card(
+                        margin: const EdgeInsets.all(8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.shopping_cart),
+                              title: Text('Order ID: $orderID'),
+                              trailing: ElevatedButton(
+                                onPressed: () {
+                                  moveOrderToPacked(orderDoc);
+                                },
+                                child: const Text('Packed'),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Column(
+                              children: List.generate(
+                                products.length,
+                                    (index) {
+                                  final productID =
+                                  products[index] as String?;
+                                  final quantity =
+                                  orderQuantities[index] as int?;
 
-                                  final productData = productSnapshot.data!
-                                      .data() as Map<String, dynamic>;
-                                  final imageURL = productData['imageURL'] as String?;
-                                  final productTitle = productData['productTitle'] as String?;
+                                  return FutureBuilder<DocumentSnapshot>(
+                                    future: FirebaseFirestore.instance
+                                        .collection('products')
+                                        .doc(productID)
+                                        .get(),
+                                    builder: (context, productSnapshot) {
+                                      if (productSnapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const CircularProgressIndicator();
+                                      }
 
-                                  if (imageURL == null ||
-                                      productTitle == null ||
-                                      quantity == null) {
-                                    return SizedBox(); // Skip this product if data is not in the correct format
-                                  }
+                                      if (!productSnapshot.hasData ||
+                                          !productSnapshot.data!.exists) {
+                                        return const SizedBox();
+                                        // Skip this product if data is not available
+                                      }
 
-                                  return ListTile(
-                                    leading: Image.network(
-                                      imageURL,
-                                      width: 50,
-                                      height: 50,
-                                    ),
-                                    title: Text(productTitle),
-                                    subtitle: Text('Quantity: $quantity'),
+                                      final productData =
+                                      productSnapshot.data!.data()
+                                      as Map<String, dynamic>;
+                                      final imageURL =
+                                      productData['imageURL'] as String?;
+                                      final productTitle =
+                                      productData['productTitle']
+                                      as String?;
+
+                                      return Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          ListTile(
+                                            leading: Image.network(
+                                              imageURL!,
+                                              width: 50,
+                                              height: 50,
+                                            ),
+                                            title: Text(productTitle!),
+                                            trailing:
+                                            Text('Quantity: $quantity'),
+                                            subtitle: addresses.isNotEmpty &&
+                                                index < addresses.length &&
+                                                addresses[index].exists
+                                                ? Text(
+                                              'Address: ${addresses[index]['address'] ?? 'Shipment address not provided'}',
+                                              style: const TextStyle(
+                                                fontStyle:
+                                                FontStyle.italic,
+                                              ),
+                                            )
+                                                : const Text(
+                                                'Shipment address not provided'),
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   );
                                 },
-                              );
-                            },
-                          ).toList(),
+                              ).toList(),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   );
                 }).toList(),
               );
@@ -186,14 +220,14 @@ class _VendorOrderScreenState extends State<VendorOrderScreen> {
                 .doc(currentUserId) // Use currentUserId
                 .collection('packed')
                 .snapshots()
-                : Stream.empty(),
+                : const Stream.empty(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
+                return const CircularProgressIndicator();
               }
 
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return Center(
+                return const Center(
                   child: Text('No orders available.'),
                 );
               }
@@ -202,68 +236,74 @@ class _VendorOrderScreenState extends State<VendorOrderScreen> {
                 children: snapshot.data!.docs.map((orderDoc) {
                   final orderID = orderDoc['orderID'] as String?;
                   final products = orderDoc['products'] as List?;
-                  final orderQuantities = orderDoc['orderQuantities'] as List?;
+                  final orderQuantities =
+                  orderDoc['orderQuantities'] as List?;
 
-                  if (orderID == null || products == null ||
+                  if (orderID == null ||
+                      products == null ||
                       orderQuantities == null) {
-                    return SizedBox(); // Skip this order if data is not in the correct format
+                    return const SizedBox();
+                    // Skip this order if data is not in the correct format
                   }
 
                   return Card(
-                    margin: EdgeInsets.all(8),
+                    margin: const EdgeInsets.all(8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ListTile(
-                          leading: Icon(Icons.shopping_cart),
+                          leading: const Icon(Icons.shopping_cart),
                           title: Text('Order ID: $orderID'),
                           trailing: ElevatedButton(
                             onPressed: () {
                               moveOrderToShipped(orderDoc);
                             },
-                            child: Text('Shipped'),
+                            child: const Text('Shipped'),
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Column(
                           children: List.generate(
                             products.length,
                                 (index) {
-                              final productID = products[index] as String?;
-                              final quantity = orderQuantities[index] as int?;
+                              final productID =
+                              products[index] as String?;
+                              final quantity =
+                              orderQuantities[index] as int?;
 
                               return FutureBuilder<DocumentSnapshot>(
-                                future: FirebaseFirestore.instance.collection(
-                                    'products').doc(productID).get(),
+                                future: FirebaseFirestore.instance
+                                    .collection('products')
+                                    .doc(productID)
+                                    .get(),
                                 builder: (context, productSnapshot) {
                                   if (productSnapshot.connectionState ==
                                       ConnectionState.waiting) {
-                                    return CircularProgressIndicator();
+                                    return const CircularProgressIndicator();
                                   }
 
                                   if (!productSnapshot.hasData ||
                                       !productSnapshot.data!.exists) {
-                                    return SizedBox(); // Skip this product if data is not available
+                                    return const SizedBox();
+                                    // Skip this product if data is not available
                                   }
 
-                                  final productData = productSnapshot.data!
-                                      .data() as Map<String, dynamic>;
-                                  final imageURL = productData['imageURL'] as String?;
-                                  final productTitle = productData['productTitle'] as String?;
-
-                                  if (imageURL == null ||
-                                      productTitle == null ||
-                                      quantity == null) {
-                                    return SizedBox(); // Skip this product if data is not in the correct format
-                                  }
+                                  final productData =
+                                  productSnapshot.data!.data()
+                                  as Map<String, dynamic>;
+                                  final imageURL =
+                                  productData['imageURL'] as String?;
+                                  final productTitle =
+                                  productData['productTitle']
+                                  as String?;
 
                                   return ListTile(
                                     leading: Image.network(
-                                      imageURL,
+                                      imageURL!,
                                       width: 50,
                                       height: 50,
                                     ),
-                                    title: Text(productTitle),
+                                    title: Text(productTitle!),
                                     subtitle: Text('Quantity: $quantity'),
                                   );
                                 },
@@ -310,11 +350,14 @@ class _VendorOrderScreenState extends State<VendorOrderScreen> {
                 children: snapshot.data!.docs.map((orderDoc) {
                   final orderID = orderDoc['orderID'] as String?;
                   final products = orderDoc['products'] as List?;
-                  final orderQuantities = orderDoc['orderQuantities'] as List?;
+                  final orderQuantities =
+                  orderDoc['orderQuantities'] as List?;
 
-                  if (orderID == null || products == null ||
+                  if (orderID == null ||
+                      products == null ||
                       orderQuantities == null) {
-                    return const SizedBox(); // Skip this order if data is not in the correct format
+                    return const SizedBox();
+                    // Skip this order if data is not in the correct format
                   }
 
                   return Card(
@@ -325,48 +368,50 @@ class _VendorOrderScreenState extends State<VendorOrderScreen> {
                         ListTile(
                           leading: const Icon(Icons.shopping_cart),
                           title: Text('Order ID: $orderID'),
-
                         ),
                         const SizedBox(height: 8),
                         Column(
                           children: List.generate(
                             products.length,
                                 (index) {
-                              final productID = products[index] as String?;
-                              final quantity = orderQuantities[index] as int?;
+                              final productID =
+                              products[index] as String?;
+                              final quantity =
+                              orderQuantities[index] as int?;
 
                               return FutureBuilder<DocumentSnapshot>(
-                                future: FirebaseFirestore.instance.collection(
-                                    'products').doc(productID).get(),
+                                future: FirebaseFirestore.instance
+                                    .collection('products')
+                                    .doc(productID)
+                                    .get(),
                                 builder: (context, productSnapshot) {
                                   if (productSnapshot.connectionState ==
                                       ConnectionState.waiting) {
-                                    return CircularProgressIndicator();
+                                    return const CircularProgressIndicator();
                                   }
 
                                   if (!productSnapshot.hasData ||
                                       !productSnapshot.data!.exists) {
-                                    return SizedBox(); // Skip this product if data is not available
+                                    return const SizedBox();
+                                    // Skip this product if data is not available
                                   }
 
-                                  final productData = productSnapshot.data!
-                                      .data() as Map<String, dynamic>;
-                                  final imageURL = productData['imageURL'] as String?;
-                                  final productTitle = productData['productTitle'] as String?;
-
-                                  if (imageURL == null ||
-                                      productTitle == null ||
-                                      quantity == null) {
-                                    return SizedBox(); // Skip this product if data is not in the correct format
-                                  }
+                                  final productData =
+                                  productSnapshot.data!.data()
+                                  as Map<String, dynamic>;
+                                  final imageURL =
+                                  productData['imageURL'] as String?;
+                                  final productTitle =
+                                  productData['productTitle']
+                                  as String?;
 
                                   return ListTile(
                                     leading: Image.network(
-                                      imageURL,
+                                      imageURL!,
                                       width: 50,
                                       height: 50,
                                     ),
-                                    title: Text(productTitle),
+                                    title: Text(productTitle!),
                                     subtitle: Text('Quantity: $quantity'),
                                   );
                                 },
@@ -384,6 +429,20 @@ class _VendorOrderScreenState extends State<VendorOrderScreen> {
         ],
       ),
     );
+  }
+
+  Future<List<DocumentSnapshot>> fetchAddresses(List? addressIDs) async {
+    if (addressIDs != null && addressIDs.isNotEmpty) {
+      final List<Future<DocumentSnapshot>> futures = [];
+      for (final addressID in addressIDs) {
+        futures.add(FirebaseFirestore.instance
+            .collection('addresses')
+            .doc(addressID)
+            .get());
+      }
+      return Future.wait(futures);
+    }
+    return [];
   }
 
   void moveOrderToPacked(DocumentSnapshot orderDoc) {
@@ -420,6 +479,4 @@ class _VendorOrderScreenState extends State<VendorOrderScreen> {
     }
   }
 }
-
-
 

@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:trusparemain/utils/constants/sizes.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({Key? key}) : super(key: key);
@@ -28,23 +27,25 @@ class _LandingScreenState extends State<LandingScreen> {
         title: const Text('Welcome'),
       ),
       body: SingleChildScrollView(
-
-        child: Padding(
-          padding: const EdgeInsets.all(TSizes.defaultSpace),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildVendorDetails(),
-              const SizedBox(height: 20),
-              const Text(
-                'Make Sure to add Bank Details before adding products to your store!',
-                textAlign: TextAlign.center, style: TextStyle(color: Colors.cyan), // Center the text
-              ),
-              const SizedBox(height: 20),
-              Text("Your Products", style: Theme.of(context).textTheme.headlineMedium),
-              _buildAllProducts(),
-            ],
-          ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildVendorDetails(),
+            const SizedBox(height: 20),
+            const Text(
+              'Make Sure to add Bank Details before adding products to your store!',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.cyan),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Your Products",
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 10),
+            _buildAllProducts(),
+          ],
         ),
       ),
     );
@@ -58,7 +59,7 @@ class _LandingScreenState extends State<LandingScreen> {
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -75,7 +76,7 @@ class _LandingScreenState extends State<LandingScreen> {
               vendorImageURL,
               fit: BoxFit.cover,
               width: double.infinity,
-              height: 200, // Set the desired height
+              height: 200,
             ),
             const SizedBox(height: 10),
             Text(
@@ -97,7 +98,7 @@ class _LandingScreenState extends State<LandingScreen> {
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -105,17 +106,16 @@ class _LandingScreenState extends State<LandingScreen> {
         }
 
         return Column(
-          children: [
-            for (var doc in snapshot.data!.docs)
-              _buildProductCard(
-                context,
-                doc.id,
-                doc['imageURL'],
-                doc['productTitle'],
-                doc['priceOfOneItem'].toString(),
-                _user,
-              ),
-          ],
+          children: snapshot.data!.docs.map((doc) {
+            return _buildProductCard(
+              context,
+              doc.id,
+              doc['imageURL'],
+              doc['productTitle'],
+              doc['priceOfOneItem'].toString(),
+              _user,
+            );
+          }).toList(),
         );
       },
     );
@@ -130,46 +130,47 @@ class _LandingScreenState extends State<LandingScreen> {
       User? user,
       ) {
     return Card(
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(vertical: 10),
       child: ListTile(
         contentPadding: const EdgeInsets.all(8),
-        leading: Image.network(imageUrl, height: 100, width: 100, fit: BoxFit.cover),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 8),
-            Text(title),
-            const SizedBox(height: 4),
-            Text('Price: ₹$price'),
-          ],),
-        trailing: PopupMenuButton<String>(
-          itemBuilder: (context) => [
-            const PopupMenuItem<String>(
-              value: 'delete',
-              child: Text('Delete'),
-            ),
-          ],
-          onSelected: (value) {
-            if (value == 'delete') {
-              // Delete the product from Firebase
-              _firestore
-                  .collection('vendors')
-                  .doc(user?.uid)
-                  .collection('products')
-                  .doc(documentId)
-                  .delete()
-                  .then((_) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Product deleted successfully')),
-                );
-              }).catchError((error) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to delete product: $error')),
-                );
-              });
-            }
-          },
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            imageUrl,
+            height: 100,
+            width: 100,
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        subtitle: Text(
+          'Price: ₹$price',
+          style: TextStyle(color: Colors.grey[600]),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete),
+          onPressed: () {
+            _firestore
+                .collection('vendors')
+                .doc(user?.uid)
+                .collection('products')
+                .doc(documentId)
+                .delete()
+                .then((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Product deleted successfully')),
+              );
+            }).catchError((error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to delete product: $error')),
+              );
+            });
+          },
+        ),),
     );
   }
 }

@@ -23,23 +23,28 @@ class _VendorLoginScreenState extends State<VendorLoginScreen> {
 
     if (email.isNotEmpty && password.isNotEmpty) {
       try {
-        await _auth.signInWithEmailAndPassword(email: email, password: password);
-        // Navigate to the home page or perform other actions upon successful login
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainVendorScreen()),
-        );
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+
+        // Check if the user's email is verified
+        if (userCredential.user!.emailVerified) {
+          // Navigate to the home page or perform other actions upon successful login
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainVendorScreen()),
+          );
+        } else {
+          // If email is not verified, show a message to the user
+          showSnack(context, 'Please verify your email before logging in');
+        }
       } catch (e) {
         e.toString();
         showSnack(context, 'User not found');
         // Handle authentication errors here
       }
-
     } else {
       // Handle empty fields
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,5 +110,4 @@ class _VendorLoginScreenState extends State<VendorLoginScreen> {
         ),
       ),
     );
-  }
-}
+  }}

@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
+import '../../account_type.dart';
+import '../../buyers/widgets/contact_us.dart';
 import '../pages/bank_details.dart';
 import '../pages/store_details.dart';
 
@@ -67,7 +69,7 @@ class VendorAccountScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 36),
+
                 // Bank Account Container
                 InkWell(
                   onTap: () {
@@ -114,6 +116,56 @@ class VendorAccountScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                // contact us page
+
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ContactUsPage()),
+                    );
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // Bank Icon
+                        Icon(Icons.contact_page, size: 30, color: Colors.cyan.shade400),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        // Title and Add Account Text
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Contact Us',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Raise Query/Issues',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 36),
                 // Log Out Button
                 Container(
@@ -127,6 +179,11 @@ class VendorAccountScreen extends StatelessWidget {
                   child: TextButton(
                     onPressed: () async {
                       await FirebaseAuth.instance.signOut();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const AccountType()),
+                      );
                     },
                     child: const Text(
                       'Log Out',

@@ -38,7 +38,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       appBar: AppBar(
         title: const Text('Product Details'),
       ),
-      body: FutureBuilder(
+      body: FutureBuilder<DocumentSnapshot>(
         future: fetchProductDetails(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -61,7 +61,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 Image.network(
                   product['imageURL'],
                   width: double.infinity,
-                  height: 200.0,
                   fit: BoxFit.cover,
                 ),
                 const SizedBox(height: 16.0),
@@ -74,7 +73,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         'Each vendor has some minimum order demands and hence the minimum possible is set at first.',
                         style: TextStyle(fontSize: 14.0),
                       ),
-                      const SizedBox(height: 36.0),
+                      const SizedBox(height: 16.0),
                       Text(
                         product['productTitle'],
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
@@ -162,7 +161,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Widget buildAddressList() {
-    return StreamBuilder(
+    return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('buyers').doc(FirebaseAuth.instance.currentUser!.uid).collection('addresses').snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
