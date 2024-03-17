@@ -54,12 +54,12 @@ class _ContactUsPageState extends State<ContactUsPage> {
               child: ElevatedButton(
                 onPressed: _submitQuery,
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.cyan,
+                  backgroundColor: Colors.cyan,
                   padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: const Text(
+                child: const Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Text(
                     'Submit',
                     style: TextStyle(
                       fontSize: 16.0,
