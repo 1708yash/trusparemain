@@ -1,29 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:trusparemain/views/buyers/nav_screens/search_screen.dart';
 import 'package:trusparemain/views/buyers/widgets/banners.dart';
-import 'package:trusparemain/views/buyers/widgets/category_text.dart';
+import 'package:trusparemain/views/auth/widgets/product_detail_card.dart';
 import '../../../utils/appbar/appbar.dart';
 import '../../../utils/constants/sizes.dart';
-import '../../auth/widgets/product_detail_card.dart';
 
 class Home extends StatelessWidget {
-  const Home({super.key});
+  const Home({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: YAppBar(
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-            },
-            icon: const Icon(Icons.logout),
-          )
-        ],
+      appBar: const YAppBar(
         showBackArrow: false,
-        title: const Text("Welcome"),
+        title: Text("Welcome"),
       ),
       body: Container(
         color: Theme.of(context).brightness == Brightness.light
@@ -31,8 +22,8 @@ class Home extends StatelessWidget {
             : Colors.black, // Dark mode background color
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top,
+            padding: const EdgeInsets.only(
+
               right: TSizes.defaultSpace,
               left: TSizes.defaultSpace,
             ),
@@ -40,9 +31,30 @@ class Home extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: TSizes.spaceBetweenItems),
-                const Banners(),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SearchScreen(),
+                      ),
+                    );
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: TextField(
+                      enabled: false,
+                      decoration: InputDecoration(
+                        labelText: 'Search Products',
+                        hintText: 'Search Products...',
+                        prefixIcon: Icon(Icons.search),
+
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
-                const CategoryText(),
+                const Banners(),
                 const SizedBox(height: TSizes.spaceBetweenItems),
                 // Featured Products
                 _buildSectionTitle(context, 'Featured Products'),

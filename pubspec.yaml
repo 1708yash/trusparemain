@@ -57,6 +57,8 @@ dependencies:
   file_picker: ^6.2.0
   uuid: ^4.3.3
   firebase_phone_auth_handler: ^1.0.8
+  intl_phone_number_input: ^0.7.4
+  google_sign_in: ^6.2.1
 
 dev_dependencies:
   flutter_test:

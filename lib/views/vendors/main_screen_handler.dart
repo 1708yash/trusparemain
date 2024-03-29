@@ -3,7 +3,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:trusparemain/views/vendors/screens/landing_screen.dart';
 import 'package:trusparemain/views/vendors/screens/orders_screen.dart';
 import 'package:trusparemain/views/vendors/screens/product_upload_screen.dart';
-import 'package:trusparemain/views/vendors/screens/vendor_account_screen.dart';
+import 'package:trusparemain/views/vendors/screens/vendor_account_new_screen.dart';
 class MainVendorScreen extends StatefulWidget {
   const MainVendorScreen({super.key});
 
@@ -17,7 +17,7 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
     const LandingScreen(),
     const VendorOrderScreen(),
     const ProductUploadScreen(),
-    const VendorAccountScreen()
+    const VendorAccountScreenNew()
   ];
 
   @override

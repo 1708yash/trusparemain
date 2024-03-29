@@ -10,58 +10,50 @@ class VendorController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-// function to store Image
-  pickStoreImage(ImageSource source) async {
-    final ImagePicker imagePicker = ImagePicker();
-
-    XFile? file = await imagePicker.pickImage(source: source);
-
-    if (file != null) {
-      return await file.readAsBytes();
-    } else {
-      print('No image Selected');
-    }
-  }
-
-  // verification document
-  verificationDoc(ImageSource source) async {
+  // Function to pick/store image
+  Future<Uint8List?> pickStoreImage(ImageSource source) async {
     final ImagePicker imagePicker = ImagePicker();
     XFile? file = await imagePicker.pickImage(source: source);
 
     if (file != null) {
       return await file.readAsBytes();
     } else {
-      print('No image Selected');
+      print('No image selected');
+      return null;
     }
   }
 
-  // function to store image on firestore
+  // Function to pick/store verification document
+  Future<Uint8List?> verificationDoc(ImageSource source) async {
+    final ImagePicker imagePicker = ImagePicker();
+    XFile? file = await imagePicker.pickImage(source: source);
 
-  _uploadVendorImageToStore(Uint8List? profileImage) async {
-    Reference ref =
-    _storage.ref().child('storeImage').child(_auth.currentUser!.uid);
-    UploadTask uploadTask = ref.putData(profileImage!);
-    await uploadTask;
-    TaskSnapshot snapshot = await uploadTask;
-    String downloadUrl = await snapshot.ref.getDownloadURL();
-    return downloadUrl;
+    if (file != null) {
+      return await file.readAsBytes();
+    } else {
+      print('No image selected');
+      return null;
+    }
   }
 
-  _uploadVendorVerificationToStore(Uint8List? verificationDocUpload) async {
-    Reference ref =
-    _storage.ref().child('VerifyDocuments').child(_auth.currentUser!.uid);
-    UploadTask uploadtask = ref.putData(verificationDocUpload!);
-    TaskSnapshot snapshot = await uploadtask;
-    String downloadUrl = await snapshot.ref.getDownloadURL();
-    return downloadUrl;
+  // Function to upload image to Firebase Storage
+  Future<String?> _uploadImageToStorage(Uint8List image, String folderName) async {
+    try {
+      Reference ref = _storage.ref().child('userProfilePics').child(_auth.currentUser!.uid);
+      UploadTask uploadTask = ref.putData(image);
+      TaskSnapshot snapshot = await uploadTask;
+      return await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      print('Error uploading image to Storage: $e');
+      return null;
+    }
   }
 
-  // function to pick store data
-  // Function to sign up users with email and password
-  Future<String> signUpUsers(
+
+  // Function to sign up users
+  Future<String> signUpVendor(
       String businessName,
       String email,
-      String phoneNumber,
       String countryValue,
       String stateValue,
       String cityValue,
@@ -72,55 +64,54 @@ class VendorController {
       bool agreeToTerms,
       Uint8List? profileImage,
       Uint8List? verificationDoc,
-      String password,
       ) async {
-    String res = "Something went wrong";
     try {
-      if (email.isNotEmpty &&
-          businessName.isNotEmpty &&
-          phoneNumber.isNotEmpty &&
-          password.isNotEmpty &&
-          profileImage != null &&
-          verificationDoc != null &&
-          countryValue.isNotEmpty &&
-          stateValue.isNotEmpty &&
-          cityValue.isNotEmpty &&
-          streetAddress.isNotEmpty &&
-          agreeToTerms) {
-        // Create user with email and password
-        final UserCredential cred = await _auth.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-        // Send email verification
-        await cred.user!.sendEmailVerification();
-        // Upload profile image and verification document
-        final String profileImageUrl = await _uploadVendorImageToStore(profileImage);
-        final String verificationDocUrl = await _uploadVendorVerificationToStore(verificationDoc);
-        // Save user details to Firestore
-        await _firestore.collection('vendors').doc(cred.user!.uid).set({
-          'businessName': businessName,
-          'email': email,
-          'phoneNumber': phoneNumber,
-          'countryValue': countryValue,
-          'stateValue': stateValue,
-          'cityValue': cityValue,
-          'streetAddress': streetAddress,
-          'pinCode': pinCode,
-          'isRegisteredToGst': isGSTRegistered,
-          'gstNumber': gstNumber,
-          'agreeToTerms': agreeToTerms,
-          'profileImage': profileImageUrl,
-          'verificationDoc': verificationDocUrl,
-          'VendorID': cred.user!.uid,
-        });
-        res = 'success';
-      } else {
-        res = 'Fields must not be empty';
+      if (_auth.currentUser == null) {
+        throw Exception('User not authenticated');
       }
+
+      if (businessName.isEmpty ||
+          email.isEmpty ||
+          countryValue.isEmpty ||
+          stateValue.isEmpty ||
+          cityValue.isEmpty ||
+          streetAddress.isEmpty ||
+          pinCode.isEmpty ||
+          profileImage == null ||
+          verificationDoc == null ||
+          !agreeToTerms) {
+        throw Exception('All fields must be filled');
+      }
+
+      // Upload images to storage
+      final String? profileImageUrl = await _uploadImageToStorage(profileImage, 'storeImage');
+      final String? verificationDocUrl = await _uploadImageToStorage(verificationDoc,'VerifyDocuments');
+
+      if (profileImageUrl == null || verificationDocUrl == null) {
+        throw Exception('Failed to upload images');
+      }
+
+      // Save vendor details to Firestore
+      await _firestore.collection('vendors').doc(_auth.currentUser!.uid).set({
+        'businessName': businessName,
+        'email': email,
+        'countryValue': countryValue,
+        'stateValue': stateValue,
+        'cityValue': cityValue,
+        'streetAddress': streetAddress,
+        'pinCode': pinCode,
+        'isRegisteredToGst': isGSTRegistered,
+        'gstNumber': gstNumber,
+        'agreeToTerms': agreeToTerms,
+        'profileImage': profileImageUrl,
+        'verificationDoc': verificationDocUrl,
+        'VendorID':_auth.currentUser?.uid,
+      });
+
+      return 'success';
     } catch (e) {
-      res = 'Verification Email Sent Verify your email to login';
+      print('Error signing up vendor: $e');
+      return 'Error: $e';
     }
-    return res;
   }
 }

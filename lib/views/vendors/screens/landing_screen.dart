@@ -24,7 +24,7 @@ class _LandingScreenState extends State<LandingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Welcome'),
+        title: const Text('Welcome'),automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -50,7 +50,6 @@ class _LandingScreenState extends State<LandingScreen> {
       ),
     );
   }
-
   Widget _buildVendorDetails() {
     return StreamBuilder(
       stream: _firestore

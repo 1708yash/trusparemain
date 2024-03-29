@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:trusparemain/views/auth/register_screen.dart';
 import 'package:trusparemain/views/buyers/main_screen.dart';
+
+import '../buyers/auth/email_auth.dart';
 
 class BuyersAuthScreen extends StatefulWidget {
   const BuyersAuthScreen({Key? key});
@@ -42,7 +43,7 @@ class _BuyersAuthScreenState extends State<BuyersAuthScreen> {
           final User? user = snapshot.data;
           if (user == null) {
             // User is not authenticated, navigate to registration screen
-            return const RegisterScreen();
+            return const SignupPage();
           } else {
             // User is authenticated
             return FutureBuilder<bool>(
@@ -58,7 +59,7 @@ class _BuyersAuthScreenState extends State<BuyersAuthScreen> {
                   return const MainScreen();
                 } else {
                   // User is not a buyer, navigate to registration screen
-                  return const RegisterScreen();
+                  return const SignupPage();
                 }
               },
             );

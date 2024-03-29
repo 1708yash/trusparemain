@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:trusparemain/utils/constants/sizes.dart';
+import 'package:intl/intl.dart';
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({Key? key}) : super(key: key);
@@ -40,7 +40,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         title: const Text("Your Orders"),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(TSizes.defaultSpace),
+        padding: const EdgeInsets.all(8.0),
         child: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection('buyers')
@@ -55,8 +55,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
             }
 
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return Center(
-                child: const Text("You haven't placed any orders yet."),
+              return const Center(
+                child: Text("You haven't placed any orders yet."),
               );
             }
 
@@ -65,102 +65,103 @@ class _OrdersScreenState extends State<OrdersScreen> {
               itemBuilder: (context, index) {
                 var order = snapshot.data?.docs[index];
                 List<String> productIDs = List<String>.from(order?['products']);
-                List<int> orderQuantities = List<int>.from(order?['orderQuantities']);
+                List<int> orderQuantities = List<int>.from(
+                    order?['orderQuantities']);
 
                 DateTime orderDate = order?['timestamp'].toDate();
-                bool canReturn = DateTime.now().difference(orderDate).inDays <= 2;
+                bool canReturn = DateTime
+                    .now()
+                    .difference(orderDate)
+                    .inDays <= 2;
 
                 return Card(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (canReturn)
-                              ElevatedButton(
-                                onPressed: () {
-                                  initiateReturn(order);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.cyan, // Set the button color
-                                ),
-                                child: const Text('Return'),
-                              ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Order Placed on: ${orderDate.toString()}',
-                              style: const TextStyle(
-                                fontStyle: FontStyle.italic,
-                              ),
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  elevation: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Order Placed on: ${DateFormat('MMM dd, yyyy hh:mm a')
+                              .format(orderDate)}',
+                          style: const TextStyle(
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        for (int i = 0; i < productIDs.length; i++)
+                          ListTile(
+                            leading: FutureBuilder(
+                              future: FirebaseFirestore.instance
+                                  .collection('products')
+                                  .doc(productIDs[i])
+                                  .get(),
+                              builder: (context, productSnapshot) {
+                                if (productSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                }
+
+                                if (!productSnapshot.hasData ||
+                                    !productSnapshot.data!.exists) {
+                                  return const SizedBox(); // Handle error or loading state
+                                }
+
+                                var productData = productSnapshot.data;
+                                String imageURL = productData?['imageURL'];
+
+                                return Image.network(
+                                  imageURL,
+                                  width: 50,
+                                  height: 50,
+                                );
+                              },
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      for (int i = 0; i < productIDs.length; i++)
-                        ListTile(
-                          leading: FutureBuilder(
-                            future: FirebaseFirestore.instance
-                                .collection('products')
-                                .doc(productIDs[i])
-                                .get(),
-                            builder: (context, productSnapshot) {
-                              if (productSnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const CircularProgressIndicator();
-                              }
+                            title: FutureBuilder(
+                              future: FirebaseFirestore.instance
+                                  .collection('products')
+                                  .doc(productIDs[i])
+                                  .get(),
+                              builder: (context, productSnapshot) {
+                                if (productSnapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                }
 
-                              if (!productSnapshot.hasData ||
-                                  !productSnapshot.data!.exists) {
-                                return const SizedBox(); // Handle error or loading state
-                              }
+                                if (!productSnapshot.hasData ||
+                                    !productSnapshot.data!.exists) {
+                                  return const SizedBox(); // Handle error or loading state
+                                }
 
-                              var productData = productSnapshot.data;
-                              String imageURL = productData?['imageURL'];
+                                var productData = productSnapshot.data;
+                                String title = productData?['productTitle'];
 
-                              return Image.network(
-                                imageURL,
-                                width: 50,
-                                height: 50,
-                              );
-                            },
+                                return Text(title);
+                              },
+                            ),
+                            subtitle: Text('Quantity: ${orderQuantities[i]}'),
                           ),
-                          title: FutureBuilder(
-                            future: FirebaseFirestore.instance
-                                .collection('products')
-                                .doc(productIDs[i])
-                                .get(),
-                            builder: (context, productSnapshot) {
-                              if (productSnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const CircularProgressIndicator();
-                              }
-
-                              if (!productSnapshot.hasData ||
-                                  !productSnapshot.data!.exists) {
-                                return const SizedBox(); // Handle error or loading state
-                              }
-
-                              var productData = productSnapshot.data;
-                              String title = productData?['productTitle'];
-
-                              return Text(title);
-                            },
+                        const SizedBox(height: 8),
+                        Text(
+                          'Total Amount: ₹ ${order?['totalAmount']
+                              .toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
                           ),
-                          subtitle: Text('Quantity: ${orderQuantities[i]}'),
                         ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Total Amount: ₹ ${order?['totalAmount'].toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                        if (canReturn)
+                          ElevatedButton(
+                            onPressed: () {
+                              initiateReturn(order);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.cyan,
+                            ),
+                            child: const Text('Return'),
+                          ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -173,15 +174,40 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
   void initiateReturn(DocumentSnapshot? order) async {
     try {
-      // Add the order to the 'returns' collection
+      // Get complete details of the products from the order
+      List<String> productIDs = List<String>.from(order?['products']);
+      List<int> orderQuantities = List<int>.from(order?['orderQuantities']);
+      List<Map<String, dynamic>> products = [];
+
+      for (int i = 0; i < productIDs.length; i++) {
+        var productSnapshot = await FirebaseFirestore.instance
+            .collection('products')
+            .doc(productIDs[i])
+            .get();
+
+        if (productSnapshot.exists) {
+          var productData = productSnapshot.data();
+          products.add({
+            'productID': productIDs[i],
+            'productTitle': productData?['productTitle'],
+            'price': productData?['price'],
+            'quantity': orderQuantities[i],
+            // Add other necessary fields
+          });
+        }
+      }
+
+      // Add the order details along with product details to the 'returns' collection
       await FirebaseFirestore.instance.collection('returns').add({
         'orderID': order?.id,
         'buyerID': currentUserId,
         'timestamp': DateTime.now(),
+        'products': products,
+        'totalAmount': order?['totalAmount'],
         // Include other necessary fields from the order
       });
 
-      // Add the order to the 'returns' subcollection within the 'buyers' collection
+      // Add the order to the 'returns' sub collection within the 'buyers' collection
       await FirebaseFirestore.instance
           .collection('buyers')
           .doc(currentUserId)
@@ -189,10 +215,12 @@ class _OrdersScreenState extends State<OrdersScreen> {
           .add({
         'orderID': order?.id,
         'timestamp': DateTime.now(),
+        'products': products,
+        'totalAmount': order?['totalAmount'],
         // Include other necessary fields from the order
       });
 
-      // Remove the order from the 'orders' subcollection
+      // Remove the order from the 'orders' sub collection
       await FirebaseFirestore.instance
           .collection('buyers')
           .doc(currentUserId)
@@ -217,3 +245,4 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
   }
 }
+

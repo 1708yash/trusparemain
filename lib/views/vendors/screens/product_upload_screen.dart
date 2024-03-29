@@ -13,7 +13,7 @@ class ProductUploadScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Your Products"),
+        title: const Text("Your Products"),automaticallyImplyLeading: false,
         actions: [
           IconButton(
             onPressed: () {

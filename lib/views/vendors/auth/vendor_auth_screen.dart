@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:trusparemain/views/vendors/auth/vendor_registration_screen.dart';
 import 'package:trusparemain/views/vendors/main_screen_handler.dart';
+import '../phone/phone_auth.dart';
 
 class VendorAuthScreen extends StatefulWidget {
-  const VendorAuthScreen({super.key});
+  const VendorAuthScreen({Key? key}) : super(key: key);
 
   @override
   State<VendorAuthScreen> createState() => _VendorAuthScreenState();
 }
 
 class _VendorAuthScreenState extends State<VendorAuthScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -36,8 +36,8 @@ class _VendorAuthScreenState extends State<VendorAuthScreen> {
 
           final User? user = snapshot.data;
           if (user == null) {
-            // User is not authenticated, navigate to registration screen
-            return const VendorRegistrationScreen();
+            // User is not authenticated, navigate to authentication page
+            return const AuthenticationPage();
           } else {
             // User is authenticated
             return FutureBuilder<bool>(
@@ -46,7 +46,6 @@ class _VendorAuthScreenState extends State<VendorAuthScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 final bool isVendor = snapshot.data ?? false;
                 if (isVendor) {
                   // User is a vendor, navigate to main vendor screen

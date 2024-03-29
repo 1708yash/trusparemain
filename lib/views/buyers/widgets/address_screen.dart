@@ -6,7 +6,7 @@ import 'package:trusparemain/utils/constants/sizes.dart';
 import '../pages/add_new_address.dart';
 
 class AddressScreen extends StatelessWidget {
-  const AddressScreen({Key? key});
+  const AddressScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class AddressScreen extends StatelessWidget {
 }
 
 class AddressDetailsList extends StatelessWidget {
-  const AddressDetailsList({Key? key});
+  const AddressDetailsList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -115,36 +115,29 @@ class AddressDetailsCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
-    Widget build(BuildContext context) {
-      return SizedBox(
-        width: double.infinity,
-        child: Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  streetAddress,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text('City: $city'),
-                Text('State: $state'),
-                Text('Country: $country'),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Text(
-                    'Pincode: $pincode',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                streetAddress,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text('City: $city'),
+              Text('State: $state'),
+              Text('Country: $country'),
+              Text('Pincode: $pincode', style: const TextStyle(fontWeight: FontWeight.bold)),
+            ],
           ),
         ),
-      );
-    }
+      ),
+    );
   }
+}

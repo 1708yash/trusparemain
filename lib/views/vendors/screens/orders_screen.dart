@@ -33,7 +33,7 @@ class _VendorOrderScreenState extends State<VendorOrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vendor Orders'),
+        title: const Text('Vendor Orders'),automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(TSizes.defaultSpace),

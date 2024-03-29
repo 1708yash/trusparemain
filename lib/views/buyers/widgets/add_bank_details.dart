@@ -11,9 +11,10 @@ class AddBankAccountBuyer extends StatefulWidget {
 }
 
 class _AddBankAccountBuyerState extends State<AddBankAccountBuyer> {
+  final TextEditingController _accountHolderController = TextEditingController();
   final TextEditingController _accountNumberController = TextEditingController();
   final TextEditingController _bankNameController = TextEditingController();
-  final TextEditingController _branchController = TextEditingController();
+  final TextEditingController _ifscCodeController = TextEditingController();
   final TextEditingController _upiIdController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -39,9 +40,10 @@ class _AddBankAccountBuyerState extends State<AddBankAccountBuyer> {
               .collection('bankDetails');
 
           await bankDetailsCollection.add({
+            'accountHolder': _accountHolderController.text,
             'accountNumber': _accountNumberController.text,
             'bankName': _bankNameController.text,
-            'branch': _branchController.text,
+            'ifscCode': _ifscCodeController.text,
             'upiId': _upiIdController.text,
             // Add other bank details fields as needed
           });
@@ -55,18 +57,34 @@ class _AddBankAccountBuyerState extends State<AddBankAccountBuyer> {
 
           Navigator.pop(context);
         } else {
-          print('Buyer not found for the current user.');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Buyer not found for the current user.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
           // Handle case where buyer is not found
         }
       } else {
-        print('User not logged in.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('User not logged in.'),
+            duration: Duration(seconds: 2),
+          ),
+        );
         // Handle case where user is not logged in
       }
     } catch (e) {
-      print('Error adding bank details: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error adding bank details. Please try again later.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
       // Handle error adding bank details
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +99,14 @@ class _AddBankAccountBuyerState extends State<AddBankAccountBuyer> {
             key: _formKey,
             child: Column(
               children: [
-                const Text("Add bank account details here"),
+
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _accountHolderController,
+                  decoration: const InputDecoration(
+                    labelText: 'Account Holder Name',
+                  ),
+                ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _accountNumberController,
@@ -98,9 +123,9 @@ class _AddBankAccountBuyerState extends State<AddBankAccountBuyer> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
-                  controller: _branchController,
+                  controller: _ifscCodeController,
                   decoration: const InputDecoration(
-                    labelText: 'Branch',
+                    labelText: 'IFSC Code',
                   ),
                 ),
                 const SizedBox(height: 16),

@@ -92,33 +92,32 @@ class _NewAddressScreenState extends State<NewAddressScreen> {
                 const SizedBox(height: 20),
 
                 // Add button to submit the form
-            Container(
-              width: MediaQuery.of(context).size.width - 120,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.cyan.shade400,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: TextButton(
-                onPressed: () {
-                  // Validate the form
-                  if (_formKey.currentState?.validate() ?? false) {
-                    // If the form is valid, submit the data to Firebase
-                    _addAddressToFirebase();
-                  }
-                },
-                child: const Text(
-                  'Add New Address',
-                  style: TextStyle(
-                    color: Colors.white              ,
-                    fontSize: 19,
-                    letterSpacing: 2,
-                    fontWeight: FontWeight.bold,
+                Container(
+                  width: MediaQuery.of(context).size.width - 120,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.cyan.shade400,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: TextButton(
+                    onPressed: () {
+                      // Validate the form
+                      if (_formKey.currentState?.validate() ?? false) {
+                        // If the form is valid, submit the data to Firebase
+                        _addAddressToFirebase();
+                      }
+                    },
+                    child: const Text(
+                      'Add New Address',
+                      style: TextStyle(
+                        color: Colors.white              ,
+                        fontSize: 19,
+                        letterSpacing: 2,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-
               ],
             ),
           ),
@@ -153,16 +152,19 @@ class _NewAddressScreenState extends State<NewAddressScreen> {
         // Add the data to the 'addresses' collection
         await FirebaseFirestore.instance.collection('addresses').add(addressData);
 
-        // Optional: You can add more logic or navigate to a different screen upon success
-        // ...
+        // Show a success snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Address added successfully')),
+        );
 
         // Navigate back to the previous screen
         Navigator.pop(context);
       } catch (error) {
-        // Handle errors if necessary
-        print('Error adding address: $error');
+        // Show an error snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding address: $error')),
+        );
       }
     }
   }
-
 }

@@ -16,6 +16,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   int minimumQuantityLocal = 1;
   String businessName = '';
   String selectedAddressId = '';
+  bool isAddressSelected = false;
 
   @override
   void initState() {
@@ -90,7 +91,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                       const SizedBox(height: 8.0),
                       Text(
-                        'Price: \$${calculateTotalPrice(product)}',
+                        'Price: ₹ ${calculateTotalPrice(product)}',
                         style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.cyan),
                       ),
                       const SizedBox(height: 8.0),
@@ -99,9 +100,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         style: const TextStyle(fontSize: 16.0),
                       ),
                       const SizedBox(height: 16.0),
-                      Text(
+                      const Text(
                         'Select Address:',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
                       ),
                       SizedBox(
                         height: 210.0,
@@ -142,9 +143,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               icon: const Icon(Icons.add),
             ),
             ElevatedButton(
-              onPressed: () {
-                addToCart(context, widget.productID, orderQuantity, selectedAddressId);
-              },
+              onPressed: isAddressSelected ? () => addToCart(context) : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.cyan,
                 padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
@@ -188,6 +187,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 onTap: () {
                   setState(() {
                     selectedAddressId = address.id;
+                    isAddressSelected = true;
                   });
                 },
                 child: Card(
@@ -223,6 +223,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           onChanged: (value) {
                             setState(() {
                               selectedAddressId = value.toString();
+                              isAddressSelected = true;
                             });
                           },
                         ),
@@ -238,11 +239,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
+  String calculateTotalPrice(DocumentSnapshot product) {
+    double priceOfOneItem = double.parse(product['priceOfOneItem'].toString());
+    int minimumQuantity = int.parse(product['minimumQuantity'].toString());
+    double totalPrice = priceOfOneItem * minimumQuantity;
+    return totalPrice.toStringAsFixed(2);
+  }
+
   Future<DocumentSnapshot> fetchProductDetails() async {
     try {
       return await FirebaseFirestore.instance.collection('products').doc(widget.productID).get();
     } catch (e) {
-      print("Error fetching product details: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error Fetching Data')),
+      );
       rethrow;
     }
   }
@@ -260,19 +270,21 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         });
       }
     } catch (e) {
-      print("Error fetching vendor details: $e");
+      ScaffoldMessenger.of(context.mounted as BuildContext).showSnackBar(
+        const SnackBar(content: Text('Error Fetching Data')),
+      );
     }
   }
 
-  String calculateTotalPrice(DocumentSnapshot product) {
-    double priceOfOneItem = double.parse(product['priceOfOneItem'].toString());
-    int minimumQuantity = int.parse(product['minimumQuantity'].toString());
-    double totalPrice = priceOfOneItem * minimumQuantity;
-    return totalPrice.toStringAsFixed(2);
-  }
-
-  void addToCart(BuildContext context, String productID, int orderQuantity, String selectedAddressId) async {
+  void addToCart(BuildContext context) async {
     try {
+      if (!isAddressSelected) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Select a delivery address')),
+        );
+        return;
+      }
+
       User? user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
@@ -285,7 +297,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           CollectionReference cartCollection = buyerCollection.doc(buyerId).collection('cart');
 
           await cartCollection.add({
-            'productID': productID,
+            'productID': widget.productID,
             'orderQuantity': orderQuantity,
             'addressID': selectedAddressId,
             'timestamp': FieldValue.serverTimestamp(),
@@ -305,7 +317,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         );
       }
     } catch (e) {
-      print("Error adding to cart: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error Fetching Data')),
+      );
     }
   }
 }

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
 
 import '../../auth/widgets/product_detail_card.dart';
+import '../main_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -18,59 +19,73 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Search Product Here"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(TSizes.defaultSpace),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: searchController,
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  hintText: 'Search Products...',
-                ),
-              ),
-            ),
-            Expanded(
-              child: StreamBuilder(
-                stream: getProductsStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+    return PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          // Handle going back
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    const MainScreen()), // Replace Home() with your home screen widget
+          );
+          return;},
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text("Search Product Here"),
 
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(child: Text("No matching products found."));
-                  }
-
-                  return GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // Set the number of grid columns
-                      crossAxisSpacing: 8.0,
-                      mainAxisSpacing: 8.0,
-                    ),
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (context, index) {
-                      var product = snapshot.data!.docs[index];
-                      return ProductCard(product: product);
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(TSizes.defaultSpace),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: searchController,
+                    onChanged: (value) {
+                      setState(() {
+                        searchQuery = value;
+                      });
                     },
-                  );
-                },
-              ),
+                    decoration: const InputDecoration(
+                      hintText: 'Search Products...',
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: StreamBuilder(
+                    stream: getProductsStream(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(
+                            child: Text("No matching products found."));
+                      }
+
+                      return GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2, // Set the number of grid columns
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                        ),
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          var product = snapshot.data!.docs[index];
+                          return ProductCard(product: product);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 
   Stream<QuerySnapshot> getProductsStream() {
@@ -78,7 +93,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
     // Apply filters based on search query
     if (searchQuery.isNotEmpty) {
-      productsQuery = productsQuery.where('productTitle', isGreaterThanOrEqualTo: searchQuery);
+      productsQuery = productsQuery.where('productTitle',
+          isGreaterThanOrEqualTo: searchQuery);
     }
 
     // Limit the number of products to show

@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
 import 'package:trusparemain/utils/show_snackBar.dart';
 import 'package:trusparemain/views/auth/register_screen.dart';
+import 'package:trusparemain/views/auth/terms_and_conditions.dart';
+import 'package:trusparemain/views/buyers/auth/email_auth.dart';
 import 'package:trusparemain/views/buyers/main_screen.dart';
 
 import '../../controllers/auth_controller.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -17,33 +18,61 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   late String email;
   late String password;
-  bool _isLoading =false;
-  final GlobalKey<FormState> _formKey =GlobalKey<FormState>();
-  final AuthController _authController =AuthController();
+  bool _isLoading = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final AuthController _authController = AuthController();
 
-  _loginUsers() async{
+  _loginUsers() async {
     setState(() {
-      _isLoading =true;
+      _isLoading = true;
     });
-    if(_formKey.currentState!.validate()){
-  String res =await _authController.loginUsers(email, password);
-  if(res =="success"){
-    return Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context){
-      return const MainScreen();
-    }));
-  } else{
 
-    return showSnack(context, 'Wrong User Credentials');
-  }
+    if (_formKey.currentState!.validate()) {
+      String res = await _authController.loginUsers(email, password);
+      if (res == "success") {
+        // Check if the current user exists in the buyers collection
+        bool userExists = await _authController.checkCurrentUserInBuyers();
+
+        if (userExists) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (BuildContext context) => const MainScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (BuildContext context) => const RegisterScreen()),
+          );
+        }
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        showSnack(context, 'Wrong User Credentials');
+      }
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      showSnack(context, 'Form not complete');
     }
-    else{
-      _isLoading=false;
-      return showSnack(context, 'Form not complete');
-    }
   }
+
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(left: TSizes.defaultSpace, right: TSizes.defaultSpace),
+        child: TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const TermsAndConditions()),
+            );
+          },
+          child: const Text('Terms and Conditions *'),
+        ),
+      ),
       appBar: AppBar(
         title: const Text('User Login'),
       ),
@@ -55,37 +84,35 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-
-                const SizedBox(height: 100,),
-                //email field
+                const SizedBox(height: 100),
                 TextFormField(
-                  onChanged: ((value){
-                    email =value;
+                  onChanged: ((value) {
+                    email = value;
                   }),
-                  validator: (value){
-                    if(value!.isEmpty){
+                  validator: (value) {
+                    if (value!.isEmpty) {
                       return 'Please Enter Email';
+                    } else {
+                      return null;
                     }
-                    else{return null;}
                   },
                   decoration: InputDecoration(
                       labelText: 'Enter Email',
-                      prefixIcon: const Icon(Icons.email), // Add prefix icon
+                      prefixIcon: const Icon(Icons.email),
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10))
-                  ),
-
+                          borderRadius: BorderRadius.circular(10))),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
-                  onChanged: ((value){
-                    password =value;
+                  onChanged: ((value) {
+                    password = value;
                   }),
-                  validator: (value){
-                    if(value!.isEmpty){
+                  validator: (value) {
+                    if (value!.isEmpty) {
                       return 'Please Enter Password';
+                    } else {
+                      return null;
                     }
-                    else{return null;}
                   },
                   obscureText: true,
                   decoration: InputDecoration(
@@ -104,10 +131,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: TextButton(
-                    onPressed: _loginUsers,
-                    child:_isLoading? const CircularProgressIndicator(
+                    onPressed: _isLoading ? null : _loginUsers,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
                       color: Colors.white,
-                    ): const Text(
+                    )
+                        : const Text(
                       'Login',
                       style: TextStyle(
                         color: Colors.white,
@@ -122,16 +151,26 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Do not have account!',style: TextStyle(fontSize: 16),),
-                    TextButton(onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context){
-                        return const RegisterScreen();
-                      }));
-                    }, child: Text("Sign-Up",style: TextStyle(
-                        color: Colors.blue.shade700,
-                        fontSize: 18
-                    ),))
-                  ],),
+                    const Text(
+                      'Do not have account!',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const SignupPage()),
+                        );
+                      },
+                      child: const Text(
+                        "Sign-Up",
+                        style: TextStyle(
+                            color: Colors.cyan, fontSize: 18),
+                      ),
+                    )
+                  ],
+                ),
               ],
             ),
           ),

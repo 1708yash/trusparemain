@@ -2,13 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
 import '../../account_type.dart';
-import '../../auth/terms_and_conditions.dart';
 import '../../buyers/widgets/contact_us.dart';
+import '../../privacy_policy.dart';
 import '../pages/bank_details.dart';
 import '../pages/store_details.dart';
 
-class VendorAccountScreen extends StatelessWidget {
-  const VendorAccountScreen({super.key});
+class VendorAccountScreenNew extends StatelessWidget {
+  const VendorAccountScreenNew({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,37 +16,20 @@ class VendorAccountScreen extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(
             left: TSizes.defaultSpace, right: TSizes.defaultSpace),
-        child: Column(
-          children: [
-            Row(
-              children:[
-                TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const TermsAndConditions()),
-                  );
-                },
-                child: const Text('Terms and Conditions *'),
-              ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const TermsAndConditions()),
-                    );
-                  },
-                  child: const Text('Privacy Policy *'),
-                ),
-              ]
-            ),
-          ],
+        child: TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => PrivacyPolicyPage()),
+            );
+          },
+          child: const Text('Privacy Policy & Terms of Use *'),
         ),
       ),
       appBar: AppBar(
         title: const Text('Your Account'),
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         child: Padding(

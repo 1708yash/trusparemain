@@ -190,6 +190,50 @@ class TermsAndConditions extends StatelessWidget {
               Text(
                 'i. TRUSPARE reserves the right to conduct a specific audit of you to make sure that these modern slavery standards are being followed.',
               ),
+
+              SizedBox(height: 20),
+              Text(
+                "9. LIMITATION OF LIABILITY AND INDEMNITY",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                "a. With all due diligence, TRUSPARE hereby expressly disclaims all warranties, express or implied, including but not limited to warranties of condition, quality, durability, performance, accuracy, reliability, merchantability, or fitness for a particular purpose. The Services are provided 'as is,' 'as available,' and 'with all faults' to the fullest extent permitted by law. By this clause, all such guarantees, promises, terms, and undertakings are disclaimed.",
+              ),
+              Text(
+                "b. TRUSPARE does not represent or warrant that the manufacture, importation, export, distribution, offer, display, purchase, sale, and/or use of products or services offered or displayed on the platform does not violate any third party rights. TRUSPARE also makes no warranties of any kind regarding any product or service offered or displayed on the platform. To the fullest extent permitted by law, TRUSPARE makes no representations or warranties about the validity, accuracy, correctness, reliability, quality, stability, completeness, or accuracy of any information provided on or through the Platform. With the exception of what is stated below, TRUSPARE's total liability for any claims arising out of or related to these terms will not exceed INR 1000/-to the maximum extent permitted by relevant law.",
+              ),
+              Text(
+                "c. Even though TRUSPARE has been informed of the possibility of such damages, under no circumstances will TRUSPARE be liable for any consequential, incidental, special, exemplary, or punitive damages, including but not limited to any lost profits that result from your purchase of any products on platform or any services availed.",
+              ),
+              SizedBox(height: 20),
+              Text(
+                "10. FORCE MAJEURE",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                "1. In no event will TRUSPARE be held responsible for any damages, failure, delay, or disruption of the services or content provided through the Platform that arises directly or indirectly from events outside of our reasonable control, such as, but not limited to, internet outages, malfunctions in computers, telecommunications, or other equipment, blackouts, labor disputes, riots, insurrections, civil disturbances, labor or material shortages, fires, floods, storms, explosions, acts of God, war, governmental actions, epidemics, pandemics, curfews, lock-downs, orders of local or foreign courts or tribunals, or non-performance of third parties.",
+              ),
+              SizedBox(height: 20),
+              Text(
+                "11. NOTICES",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                "a. Any legal notices or demands made against a user will be enforceable through one of the following methods: in-person delivery; courier service; certified mail; fax or email sent to the user's last-known address; fax or email address provided to TRUSPARE; SMS, WhatsApp messages; in-app notifications; or posting of the notice or demand on a part of the platform that is freely accessible to the public. Alternatively, TRUSPARE may choose to use another form of communication. Notice to a User is deemed received by such User if and only if a) TRUSPARE can demonstrate that communication, whether in physical or electronic form, was sent to such User, or b) immediately upon TRUSPARE posting such notice on an area of the Platform that the User has access to or is publicly accessible without charge.",
+              ),
+
             ],
           ),
         ),

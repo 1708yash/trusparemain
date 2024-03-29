@@ -34,7 +34,7 @@ class _MainScreenState extends State<MainScreen> {
           type: BottomNavigationBarType.fixed,
           currentIndex: _pageIndex,
           unselectedItemColor: Colors.grey.shade400,
-          selectedItemColor: Colors.green.shade700,
+          selectedItemColor: Colors.cyan.shade700,
           items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.home, size: 24, color: Colors.grey.shade400,),
