@@ -32,7 +32,6 @@ class _NewAddressScreenState extends State<NewAddressScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 12,),
-                // Add form fields for street address, city, state, country, and pincode
                 TextFormField(
                   controller: _streetController,
                   decoration: const InputDecoration(labelText: 'Street Address'),
@@ -91,7 +90,6 @@ class _NewAddressScreenState extends State<NewAddressScreen> {
 
                 const SizedBox(height: 20),
 
-                // Add button to submit the form
                 Container(
                   width: MediaQuery.of(context).size.width - 120,
                   height: 50,
@@ -101,16 +99,14 @@ class _NewAddressScreenState extends State<NewAddressScreen> {
                   ),
                   child: TextButton(
                     onPressed: () {
-                      // Validate the form
                       if (_formKey.currentState?.validate() ?? false) {
-                        // If the form is valid, submit the data to Firebase
                         _addAddressToFirebase();
                       }
                     },
                     child: const Text(
                       'Add New Address',
                       style: TextStyle(
-                        color: Colors.white              ,
+                        color: Colors.white,
                         fontSize: 19,
                         letterSpacing: 2,
                         fontWeight: FontWeight.bold,
@@ -127,40 +123,40 @@ class _NewAddressScreenState extends State<NewAddressScreen> {
   }
 
   void _addAddressToFirebase() async {
-    // Get the current user's UID
     String? uid = FirebaseAuth.instance.currentUser?.uid;
 
-    // Check if the user is logged in
     if (uid != null) {
-      // Construct the data to be added to the sub-collection
-      Map<String, dynamic> addressData = {
-        'street': _streetController.text,
-        'city': _cityController.text,
-        'state': _stateController.text,
-        'country': _countryController.text,
-        'pincode': _pincodeController.text,
-      };
-
       try {
-        // Add the data to the 'addresses' sub-collection under the buyer's collection
+        String addressId = FirebaseFirestore.instance.collection('addresses').doc().id;
+
+        Map<String, dynamic> addressData = {
+          'street': _streetController.text,
+          'city': _cityController.text,
+          'state': _stateController.text,
+          'country': _countryController.text,
+          'pincode': _pincodeController.text,
+        };
+
+        Map<String, dynamic> buyerAddressData = {
+          ...addressData,
+          'addressId': addressId,
+        };
+
         await FirebaseFirestore.instance
             .collection('buyers')
             .doc(uid)
             .collection('addresses')
-            .add(addressData);
+            .doc(addressId)
+            .set(buyerAddressData);
 
-        // Add the data to the 'addresses' collection
-        await FirebaseFirestore.instance.collection('addresses').add(addressData);
+        await FirebaseFirestore.instance.collection('addresses').doc(addressId).set(addressData);
 
-        // Show a success snackbar
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Address added successfully')),
         );
 
-        // Navigate back to the previous screen
         Navigator.pop(context);
       } catch (error) {
-        // Show an error snackbar
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error adding address: $error')),
         );

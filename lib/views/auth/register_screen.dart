@@ -11,7 +11,7 @@ import 'package:trusparemain/views/buyers/main_screen.dart';
 import '../../utils/constants/sizes.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key});
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -50,7 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           _agreeToTerms = false;
         });
       });
-      showSnack(context, 'Congratulations, Account Created');
+      showSnack(context, 'Congratulations, Account Created, Check Your Email to get verified !');
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),
@@ -136,6 +136,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _agreeToTerms,
+                      onChanged: (value) => setState(() => _agreeToTerms = value!),
+                    ),
+                    const Text('I agree to the Terms and Conditions'),
+                  ],
+                ),
+
                 const SizedBox(height: 24),
                 Container(
                   width: MediaQuery.of(context).size.width - 120,
@@ -161,16 +172,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 const SizedBox(height: 24),
                 // Checkbox for agreeing to terms and conditions
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _agreeToTerms,
-                      onChanged: (value) => setState(() => _agreeToTerms = value!),
-                    ),
-                    const Text('I agree to the Terms and Conditions'),
-                  ],
-                ),
-                const SizedBox(height: 12),
+
 
               ],
             ),

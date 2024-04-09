@@ -6,6 +6,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
 import 'package:trusparemain/views/vendors/controller/product_controller.dart';
+import '../../../utils/show_snackBar.dart';
 import '../screens/product_upload_screen.dart';
 
 class AddProductScreen extends StatefulWidget {
@@ -49,7 +50,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             querySnapshot.docs.map((doc) => doc['categoryName'].toString()));
       });
     } catch (e) {
-      print('Error fetching categories: $e');
+      showSnack(context, 'Error fetching categories: $e');
     }
   }
 
@@ -63,7 +64,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             querySnapshot.docs.map((doc) => doc['subCategoryName'].toString()));
       });
     } catch (e) {
-      print('Error fetching sub-categories: $e');
+      showSnack(context, 'Error fetching categories: $e');
     }
   }
 
@@ -77,7 +78,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
             .map((doc) => doc['smallSubCategory'].toString()));
       });
     } catch (e) {
-      print('Error fetching super sub-categories: $e');
+      showSnack(context, 'Error fetching categories: $e');
     }
   }
 
@@ -118,7 +119,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           print('Please select an image');
         }
       } catch (e) {
-        print('Error submitting product: $e');
+        showSnack(context, 'Error Adding Product Try again later possible reasons: slow internet or : $e');
       } finally {
         EasyLoading.dismiss();
       }
@@ -197,7 +198,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'Price of one item',
-                    prefixIcon: const Icon(Icons.attach_money),
+                    prefixIcon: const Icon(Icons.money),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),

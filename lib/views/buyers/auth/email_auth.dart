@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../controllers/auth_controller.dart';
 import '../../../utils/show_snackBar.dart';
 import '../../auth/login_screen.dart';
-import '../../auth/register_screen.dart';
-
 
 class SignupPage extends StatefulWidget {
   const SignupPage({Key? key}) : super(key: key);
@@ -36,10 +34,11 @@ class _SignupPageState extends State<SignupPage> {
       final String email = _emailController.text.trim();
       final String password = _passwordController.text.trim();
 
-      String result = await _authController.signUpUsers(email, password, null, false);
+      String result = await _authController.signUpWithEmailAndPassword(email, password);
 
       if (result == 'success') {
         // Navigate to login screen
+        showSnack(context, 'Verification Email Sent, Check your Email before trying to sign-in');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -50,14 +49,14 @@ class _SignupPageState extends State<SignupPage> {
         _passwordController.clear();
 
         // Show success message
-        showSnack(context, 'Please verify your email address');
+
       } else {
         // Show error message
-        showSnack(context, 'Could not sign up');
+        showSnack(context, 'Verification Email Sent! Please Check your Email to verify.');
       }
     } catch (e) {
       // Show generic error message
-      showSnack(context, 'Could not sign up: $e');
+      showSnack(context, 'Check your Email: $e');
     }
   }
 

@@ -10,6 +10,40 @@ class AuthController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
+  // Function to handle user signup
+  Future<String> signUpWithEmailAndPassword(String email, String password) async {
+    String res = "Something went wrong";
+    try {
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Send email verification
+      await sendEmailVerification();
+      res = 'success';
+
+    } catch (error) {
+
+      res ='Could not sign-up';
+      return res;
+    }
+    return res;
+  }
+  // Function to send email verification
+  Future<String> sendEmailVerification() async {
+    String res ="verification Email";
+    try {
+      User? user = _auth.currentUser;
+      await user!.sendEmailVerification();
+      res ='Verification Email Sent';
+      return res;
+    } catch (error) {
+      res ='Could Not send Verification Email';
+      return res;
+    }
+  }
+
   Future<String> signUpUsers(
       String fullName,
       String phoneNumber,
@@ -48,17 +82,23 @@ class AuthController {
   }
 
   Future<String> loginUsers(String email, String password) async {
-    String res = 'something went wrong';
+    String res = 'Something went wrong';
 
     try {
-      if (email.isNotEmpty && password.isNotEmpty) {
-        await _auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-        res = 'success';
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (userCredential.user != null) {
+        // Check if email is verified
+        if (userCredential.user!.emailVerified) {
+          res = 'success'; // User is logged in
+        } else {
+          res = 'Email not verified. Please verify your email address.'; // Email not verified
+        }
       } else {
-        res = 'Fields must not be empty';
+        res = 'Failed to sign in';
       }
     } catch (e) {
       res = e.toString();

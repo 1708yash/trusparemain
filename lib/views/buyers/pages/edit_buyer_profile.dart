@@ -62,13 +62,13 @@ class _BuyerUpdateDetailsState extends State<BuyerUpdateDetails> {
           .doc(_currentUser.uid)
           .update(userData);
 
-      ScaffoldMessenger.of(context.mounted as BuildContext).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Profile updated successfully'),
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context.mounted as BuildContext).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Failed to update profile'),
         ),
@@ -86,7 +86,7 @@ class _BuyerUpdateDetailsState extends State<BuyerUpdateDetails> {
         _profileImageUrl = imageUrl;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context.mounted as BuildContext).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Failed to upload image'),
         ),
@@ -106,78 +106,71 @@ class _BuyerUpdateDetailsState extends State<BuyerUpdateDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: true,
-      onPopInvoked: (didPop) async {
-        Navigator.pop(context);
-        return ;
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Update Profile'),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: GestureDetector(
-                  onTap: _pickImage,
-                  child: Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CircleAvatar(
-                        radius: 70,
-                        backgroundImage: _profileImageUrl.isNotEmpty
-                            ? NetworkImage(_profileImageUrl)
-                            : null,
-                      ),
-                      const Icon(
-                        Icons.edit,
-                        color: Colors.cyan,
-                      ),
-                    ],
-                  ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Update Profile'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    CircleAvatar(
+                      radius: 70,
+                      backgroundImage: _profileImageUrl.isNotEmpty
+                          ? NetworkImage(_profileImageUrl)
+                          : null,
+                    ),
+                    const Icon(
+                      Icons.edit,
+                      color: Colors.cyan,
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16.0),
-              TextFormField(
-                controller: _fullNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Full Name',
-                  fillColor: Colors.white,
-                  filled: false,
-                  border: OutlineInputBorder(),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              controller: _fullNameController,
+              decoration: const InputDecoration(
+                labelText: 'Full Name',
+                fillColor: Colors.white,
+                filled: false,
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              controller: _phoneNumberController,
+              decoration: const InputDecoration(
+                labelText: 'Phone Number',
+                fillColor: Colors.white,
+                filled: false,
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 32.0),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _updateProfile,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.cyan,
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                ),
+                child: const Text(
+                  'Update',
+                  style: TextStyle(fontSize: 16.0),
                 ),
               ),
-              const SizedBox(height: 16.0),
-              TextFormField(
-                controller: _phoneNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number',
-                  fillColor: Colors.white,
-                  filled: false,
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 32.0),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _updateProfile,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.cyan,
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  ),
-                  child: const Text(
-                    'Update',
-                    style: TextStyle(fontSize: 16.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

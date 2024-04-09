@@ -38,6 +38,59 @@ class AccountScreen extends StatelessWidget {
           child: Center(
             child: Column(
               children: [
+                // update user profile
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const BuyerUpdateDetails()),
+                    );
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // Bank Icon
+                        Icon(Icons.contact_page,
+                            size: 30, color: Colors.cyan.shade400),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        // Title and Add Account Text
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Your Profile',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Update/Manage Profile',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
                 // your orders
                 InkWell(
                   onTap: () {
@@ -145,6 +198,59 @@ class AccountScreen extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
+                // Address and update address
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AddressScreen()),
+                    );
+                  },
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // Bank Icon
+                        Icon(Icons.location_city,
+                            size: 30, color: Colors.cyan.shade400),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        // Title and Add Account Text
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Addresses',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Add/Edit Address',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
 
 // bank details
 
@@ -202,112 +308,8 @@ class AccountScreen extends StatelessWidget {
                 ),
 
 
-                // update user profile
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const BuyerUpdateDetails()),
-                    );
-                  },
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        // Bank Icon
-                        Icon(Icons.contact_page,
-                            size: 30, color: Colors.cyan.shade400),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        // Title and Add Account Text
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Your Profile',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Update/Manage Profile',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                // Bank Account Container
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddressScreen()),
-                    );
-                  },
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        // Bank Icon
-                        Icon(Icons.location_city,
-                            size: 30, color: Colors.cyan.shade400),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        // Title and Add Account Text
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Addresses',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Add/Edit Address',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
+
+
                 // contact us page
 
                 InkWell(

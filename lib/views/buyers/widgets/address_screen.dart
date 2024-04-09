@@ -134,10 +134,43 @@ class AddressDetailsCard extends StatelessWidget {
               Text('State: $state'),
               Text('Country: $country'),
               Text('Pincode: $pincode', style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => _deleteAddress(context),
+                child: const Text('Delete'),
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _deleteAddress(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore.instance
+          .collection('buyers')
+          .doc(user.uid)
+          .collection('addresses')
+          .where('street', isEqualTo: streetAddress)
+          .where('city', isEqualTo: city)
+          .where('state', isEqualTo: state)
+          .where('country', isEqualTo: country)
+          .where('pincode', isEqualTo: pincode)
+          .get()
+          .then((querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          doc.reference.delete();
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Address deleted successfully')),
+        );
+      }).catchError((error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error deleting address: $error')),
+        );
+      });
+    }
   }
 }

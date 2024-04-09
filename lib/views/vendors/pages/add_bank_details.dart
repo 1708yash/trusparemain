@@ -15,6 +15,8 @@ class _AddBankAccountState extends State<AddBankAccount> {
   final TextEditingController _bankNameController = TextEditingController();
   final TextEditingController _branchController = TextEditingController();
   final TextEditingController _upiIdController = TextEditingController();
+  final TextEditingController _accountHolderNameController = TextEditingController();
+  final TextEditingController _ifscCodeController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -43,6 +45,8 @@ class _AddBankAccountState extends State<AddBankAccount> {
             'bankName': _bankNameController.text,
             'branch': _branchController.text,
             'upiId': _upiIdController.text,
+            'accountHolderName': _accountHolderNameController.text,
+            'ifscCode': _ifscCodeController.text,
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
@@ -105,6 +109,38 @@ class _AddBankAccountState extends State<AddBankAccount> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter account number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _accountHolderNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Account Holder Name',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter account holder name';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _ifscCodeController,
+                  decoration: InputDecoration(
+                    labelText: 'IFSC Code',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter IFSC code';
                     }
                     return null;
                   },

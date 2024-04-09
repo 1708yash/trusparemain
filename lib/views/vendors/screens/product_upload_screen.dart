@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
 import 'package:trusparemain/views/vendors/pages/add_product_screen.dart';
 
+import '../main_screen_handler.dart';
+
 class ProductUploadScreen extends StatelessWidget {
   const ProductUploadScreen({super.key});
 
@@ -11,66 +13,81 @@ class ProductUploadScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Your Products"),automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddProductScreen()),
-              );
-            },
-            icon: const Icon(Icons.add),
-          )
-        ],
-      ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('vendors')
-            .doc(user?.uid)
-            .collection('products')
-            .snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("No products available", style: TextStyle(color: Colors.cyan)));
-          }
-
-          return Padding(
-            padding: const EdgeInsets.all(TSizes.defaultSpace),
-            child: ListView.builder(
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                var doc = snapshot.data!.docs[index];
-                return _buildProductCard(
-                  context,
-                  doc.id, // Document ID for deletion
-                  doc['imageURL'],
-                  doc['productTitle'],
-                  doc['priceOfOneItem'].toString(),
-                  user,
-                );
-              },
-            ),
+    return PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          // Handle going back
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    const MainVendorScreen()), // Replace Home() with your home screen widget
           );
         },
-      ),
-    );
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text("Your Products"),
+            automaticallyImplyLeading: false,
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AddProductScreen()),
+                  );
+                },
+                icon: const Icon(Icons.add),
+              )
+            ],
+          ),
+          body: StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection('vendors')
+                .doc(user?.uid)
+                .collection('products')
+                .snapshots(),
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(
+                    child: Text("No products available",
+                        style: TextStyle(color: Colors.cyan)));
+              }
+
+              return Padding(
+                padding: const EdgeInsets.all(TSizes.defaultSpace),
+                child: ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var doc = snapshot.data!.docs[index];
+                    return _buildProductCard(
+                      context,
+                      doc.id, // Document ID for deletion
+                      doc['imageURL'],
+                      doc['productTitle'],
+                      doc['priceOfOneItem'].toString(),
+                      user,
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ));
   }
 
   Widget _buildProductCard(
-      BuildContext context,
-      String documentId,
-      String imageUrl,
-      String title,
-      String price,
-      User? user,
-      ) {
+    BuildContext context,
+    String documentId,
+    String imageUrl,
+    String title,
+    String price,
+    User? user,
+  ) {
     return Card(
       elevation: 3,
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -78,7 +95,8 @@ class ProductUploadScreen extends StatelessWidget {
         contentPadding: const EdgeInsets.all(8),
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Image.network(imageUrl, height: 100, width: 100, fit: BoxFit.cover),
+          child: Image.network(imageUrl,
+              height: 100, width: 100, fit: BoxFit.cover),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

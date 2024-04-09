@@ -64,6 +64,7 @@ class VendorController {
       bool agreeToTerms,
       Uint8List? profileImage,
       Uint8List? verificationDoc,
+      String mov,
       ) async {
     try {
       if (_auth.currentUser == null) {
@@ -106,6 +107,7 @@ class VendorController {
         'profileImage': profileImageUrl,
         'verificationDoc': verificationDocUrl,
         'VendorID':_auth.currentUser?.uid,
+        'verified': false,
       });
 
       return 'success';

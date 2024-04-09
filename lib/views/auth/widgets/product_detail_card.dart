@@ -104,6 +104,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         'Select Address:',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
                       ),
+                      const SizedBox(height: 8.0),
                       SizedBox(
                         height: 210.0,
                         child: buildAddressList(),
@@ -177,7 +178,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           return const Center(child: Text('No addresses found'));
         }
 
-        return Expanded(
+        return SizedBox(
+          height: 210.0,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: addresses.length,

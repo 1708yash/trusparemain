@@ -8,7 +8,6 @@ import 'package:trusparemain/controllers/vendor_register_controller.dart';
 import 'package:trusparemain/utils/constants/sizes.dart';
 import 'package:trusparemain/utils/show_snackBar.dart';
 import 'package:trusparemain/views/buyers/main_screen.dart';
-import 'package:trusparemain/views/vendors/auth/vendor_login_screen.dart';
 import '../../auth/terms_and_conditions.dart';
 
 class VendorRegistrationScreen extends StatefulWidget {
@@ -34,6 +33,7 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
   late String streetAddress = '';
   late String pinCode = '';
   late String gstNumber = '';
+  late String mov ='';
 
   Future<void> selectGalleryImage() async {
     final Uint8List? img =
@@ -70,6 +70,7 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
         _agreeToTerms,
         _profileImage,
         _verificationDoc,
+        mov,
       );
 
       if (result == 'success') {
@@ -162,25 +163,7 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        const Text(
-                          'Already Have an account?',
-                          style: TextStyle(fontWeight: FontWeight.w300),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PhoneAuthScreen(),
-                              ),
-                            );
-                          },
-                          child: const Text("Sign-In"),
-                        ),
-                      ],
-                    ),
+
                     TextFormField(
                       onChanged: (value) {
                         businessName = value;
@@ -259,6 +242,26 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
+                    TextFormField(
+                      onChanged: (value) {
+                        mov = value;
+                      },
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Enter a minimum order value';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Enter minimum order Value',
+                        prefixIcon: const Icon(Icons.money),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     Padding(
                       padding: const EdgeInsets.all(TSizes.sm),
                       child: SelectState(
@@ -309,7 +312,7 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                           ],
                         ),
                         const Text(
-                          "Click the checkbox if you have GST number",
+                          "Click the checkbox if you have any of the id available !",
                           style: TextStyle(color: Colors.cyan, fontSize: 12),
                         )
                       ],
@@ -321,7 +324,7 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                           gstNumber = value;
                         },
                         decoration: InputDecoration(
-                          labelText: 'Enter GST Number',
+                          labelText: 'Enter Document ID Number',
                           prefixIcon: const Icon(Icons.numbers),
                           border: UnderlineInputBorder(
                             borderRadius: BorderRadius.circular(10),

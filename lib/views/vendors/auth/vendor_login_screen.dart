@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../utils/constants/sizes.dart';
+import '../../../utils/show_snackBar.dart';
 import '../../auth/terms_and_conditions.dart';
 import '../main_screen_handler.dart';
 import '../phone/phone_auth.dart';
@@ -25,7 +26,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
         await _auth.signInWithCredential(credential);
       },
       verificationFailed: (FirebaseAuthException e) {
-        print('Phone number verification failed: $e');
+        showSnack(context, 'Phone number verification failed: $e');
       },
       codeSent: (String verificationId, int? resendToken) {
         setState(() {
@@ -54,7 +55,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
         MaterialPageRoute(builder: (context) => MainVendorScreen()),
       );
     } catch (e) {
-      print('Invalid OTP: $e');
+      showSnack(context, 'Invalid OTP');
     }
   }
 

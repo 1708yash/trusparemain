@@ -5,7 +5,6 @@ import 'package:trusparemain/utils/constants/sizes.dart';
 
 import 'add_bank_details.dart';
 
-
 class BankAccount extends StatelessWidget {
   const BankAccount({Key? key}) : super(key: key);
 
@@ -29,8 +28,7 @@ class BankAccount extends StatelessWidget {
       body: const SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(TSizes.defaultSpace),
-          child:
-          Column(
+          child: Column(
             children: [
               Text("Your Bank Accounts"),
               SizedBox(height: 16),
@@ -44,12 +42,12 @@ class BankAccount extends StatelessWidget {
 }
 
 class BankDetailsList extends StatelessWidget {
-  const BankDetailsList({super.key});
+  const BankDetailsList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: getBankDetailsStream(), // Replace with your stream function
+      stream: getBankDetailsStream(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const Text('Error loading bank details');
@@ -65,20 +63,27 @@ class BankDetailsList extends StatelessWidget {
           return const Text('No bank details found');
         }
 
-        return Column(
-          children: data.map((doc) {
-            final accountNumber = doc['accountNumber'];
-            final bankName = doc['bankName'];
-            final branch = doc['branch'];
-            final upiId = doc['upiId'];
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: data.length,
+          itemBuilder: (context, index) {
+            final accountNumber = data[index]['accountNumber'];
+            final bankName = data[index]['bankName'];
+            final branch = data[index]['branch'];
+            final upiId = data[index]['upiId'];
+            final accountHolderName = data[index]['accountHolderName'];
+            final ifscCode = data[index]['ifscCode'];
 
             return BankDetailsCard(
               accountNumber: accountNumber,
               bankName: bankName,
               branch: branch,
               upiId: upiId,
+              accountHolderName: accountHolderName,
+              ifscCode: ifscCode,
             );
-          }).toList(),
+          },
         );
       },
     );
@@ -103,12 +108,16 @@ class BankDetailsCard extends StatelessWidget {
   final String bankName;
   final String branch;
   final String upiId;
+  final String accountHolderName;
+  final String ifscCode;
 
   const BankDetailsCard({
     required this.accountNumber,
     required this.bankName,
     required this.branch,
     required this.upiId,
+    required this.accountHolderName,
+    required this.ifscCode,
     Key? key,
   }) : super(key: key);
 
@@ -138,6 +147,8 @@ class BankDetailsCard extends StatelessWidget {
             Text('Account Number: $accountNumber'),
             Text('Branch: $branch'),
             Text('UPI ID: $upiId'),
+            Text('Account Holder Name: $accountHolderName'),
+            Text('IFSC Code: $ifscCode'),
           ],
         ),
       ),

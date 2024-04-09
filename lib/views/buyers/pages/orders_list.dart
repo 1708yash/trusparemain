@@ -177,6 +177,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
       // Get complete details of the products from the order
       List<String> productIDs = List<String>.from(order?['products']);
       List<int> orderQuantities = List<int>.from(order?['orderQuantities']);
+      List<String> addressIDs = List<String>.from(order?['addressIDs']); // Fetch addressIDs from the order
+
       List<Map<String, dynamic>> products = [];
 
       for (int i = 0; i < productIDs.length; i++) {
@@ -198,35 +200,29 @@ class _OrdersScreenState extends State<OrdersScreen> {
       }
 
       // Add the order details along with product details to the 'returns' collection
-      await FirebaseFirestore.instance.collection('returns').add({
+      var returnDocRef = await FirebaseFirestore.instance.collection('returns').add({
         'orderID': order?.id,
         'buyerID': currentUserId,
         'timestamp': DateTime.now(),
         'products': products,
         'totalAmount': order?['totalAmount'],
+        'addressIDs': addressIDs, // Add addressIDs to the return document
         // Include other necessary fields from the order
       });
 
-      // Add the order to the 'returns' sub collection within the 'buyers' collection
-      await FirebaseFirestore.instance
-          .collection('buyers')
-          .doc(currentUserId)
-          .collection('returns')
-          .add({
+      // Add the order to the 'returns' sub-collection within the 'buyers' collection
+      await FirebaseFirestore.instance.collection('buyers').doc(currentUserId).collection('returns').add({
         'orderID': order?.id,
+        'returnID': returnDocRef.id, // Store returnID for reference
         'timestamp': DateTime.now(),
         'products': products,
         'totalAmount': order?['totalAmount'],
+        'addressIDs': addressIDs, // Add addressIDs to the return document
         // Include other necessary fields from the order
       });
 
-      // Remove the order from the 'orders' sub collection
-      await FirebaseFirestore.instance
-          .collection('buyers')
-          .doc(currentUserId)
-          .collection('orders')
-          .doc(order?.id)
-          .delete();
+      // Remove the order from the 'orders' sub-collection
+      await FirebaseFirestore.instance.collection('buyers').doc(currentUserId).collection('orders').doc(order?.id).delete();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
