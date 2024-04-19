@@ -29,6 +29,15 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     }
 
     try {
+      // Check if user already exists
+      bool userExists = await _checkUserExists(phoneNumber);
+      if (userExists) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("User already exists")),
+        );
+        return;
+      }
+
       await _auth.verifyPhoneNumber(
         phoneNumber: '+91$phoneNumber',
         verificationCompleted: (PhoneAuthCredential credential) async {
@@ -54,6 +63,20 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       );
     }
   }
+
+  Future<bool> _checkUserExists(String phoneNumber) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
+          .collection('vendors')
+          .where('phoneNumber', isEqualTo: phoneNumber)
+          .get();
+      return snapshot.docs.isNotEmpty;
+    } catch (e) {
+      print("Error checking user existence: $e");
+      return false;
+    }
+  }
+
 
   Future<void> _verifyOTP(BuildContext context) async {
     try {
@@ -116,6 +139,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Text("Please do not apply for registration again if the Vendor is already a member, this will delete the previous profile and data! Please go to login Page."),
             TextFormField(
               controller: _phoneNumberController,
               keyboardType: TextInputType.phone,

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:trusparemain/views/buyers/nav_screens/search_screen.dart';
 import 'package:trusparemain/views/buyers/widgets/banners.dart';
 import 'package:trusparemain/views/auth/widgets/product_detail_card.dart';
+import 'package:trusparemain/views/buyers/widgets/category_text.dart';
 import '../../../utils/appbar/appbar.dart';
 import '../../../utils/constants/sizes.dart';
 
@@ -53,8 +54,12 @@ class Home extends StatelessWidget {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
                 const Banners(),
+                const SizedBox(height: 20),
+                //category
+                const CategoryText(),
                 const SizedBox(height: TSizes.spaceBetweenItems),
                 // Featured Products
                 _buildSectionTitle(context, 'Featured Products'),

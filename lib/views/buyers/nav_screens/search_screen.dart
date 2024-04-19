@@ -27,7 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    const MainScreen()), // Replace Home() with your home screen widget
+                const MainScreen()), // Replace Home() with your home screen widget
           );
           return;},
         child: Scaffold(
@@ -68,7 +68,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
                       return GridView.builder(
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2, // Set the number of grid columns
                           crossAxisSpacing: 8.0,
                           mainAxisSpacing: 8.0,

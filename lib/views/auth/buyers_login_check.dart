@@ -13,6 +13,7 @@ class BuyersAuthScreen extends StatefulWidget {
 }
 
 class _BuyersAuthScreenState extends State<BuyersAuthScreen> {
+  // ignore: unused_field
   late User? _user;
 
   @override

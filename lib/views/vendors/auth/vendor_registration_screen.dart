@@ -291,7 +291,7 @@ class _VendorRegistrationScreenState extends State<VendorRegistrationScreen> {
                         Row(
                           children: [
                             const Text(
-                              'Is your store GST Registered ?',
+                              'Is your store Registered or have any identification proof?',
                               style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.w500),
                             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:iconsax/iconsax.dart';
+import '../nav_screens/search_screen.dart'; // Import your SearchScreen
 
 class CategoryText extends StatefulWidget {
   const CategoryText({Key? key}) : super(key: key);
@@ -38,7 +38,7 @@ class _CategoryTextState extends State<CategoryText> {
           "Categories",
           style: TextStyle(
             fontSize: 19,
-            color: Colors.black, // Default text color
+            color: Colors.cyan, // Default text color
           ),
         ),
         const SizedBox(height: 20,),
@@ -54,14 +54,24 @@ class _CategoryTextState extends State<CategoryText> {
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
-                      child: ActionChip(
-                        onPressed: () {},
-                        label: Text(
-                          _categories[index],
-                          style: TextStyle(
-                            color: Theme.of(context).brightness == Brightness.dark
-                                ? Colors.white // White text color in dark mode
-                                : Colors.black, // Black text color in light mode
+                      child: GestureDetector(
+                        onTap: () {
+                          // Navigate to SearchScreen with selected category
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SearchScreen(),
+                            ),
+                          );
+                        },
+                        child: ActionChip(
+                          label: Text(
+                            _categories[index],
+                            style: TextStyle(
+                              color: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.black // White text color in dark mode
+                                  : Colors.white, // Black text color in light mode
+                            ),
                           ),
                         ),
                       ),

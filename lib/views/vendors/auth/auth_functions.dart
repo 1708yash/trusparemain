@@ -6,6 +6,7 @@ class AuthServices {
   static signupUser(
       String email, String password, BuildContext context) async {
     try {
+      // ignore: unused_local_variable
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
       ScaffoldMessenger.of(context)

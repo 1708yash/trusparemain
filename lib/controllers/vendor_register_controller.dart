@@ -108,6 +108,7 @@ class VendorController {
         'verificationDoc': verificationDocUrl,
         'VendorID':_auth.currentUser?.uid,
         'verified': false,
+        'mov': mov,
       });
 
       return 'success';

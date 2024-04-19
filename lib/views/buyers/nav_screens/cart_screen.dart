@@ -16,7 +16,7 @@ class _CartScreenState extends State<CartScreen> {
   String? currentUserId;
   double totalAmount = 0.0;
   bool isLoading = false;
-
+  double movMain = 0.0;
   @override
   void initState() {
     super.initState();
@@ -39,7 +39,29 @@ class _CartScreenState extends State<CartScreen> {
           .doc(currentUserId)
           .collection('cart')
           .get();
+      // Fetch mov value for the first product in the cart
+      String? vendorID; // Store the vendorID
+      for (var cartItem in cartSnapshot.docs) {
+        String productID = cartItem['productID'];
+        vendorID = productID.split('_').first; // Extract vendorID from productID
+        // Now you have the vendorID for the first product in the cart
+        break; // Break after fetching the vendorID of the first product
+      }
 
+      // Fetch mov value from the vendors collection
+      if (vendorID != null) {
+        DocumentSnapshot vendorSnapshot = await FirebaseFirestore.instance
+            .collection('vendors')
+            .doc(vendorID)
+            .get();
+
+        if (vendorSnapshot.exists) {
+          double mov = vendorSnapshot['mov'] ?? 0.0;
+          // Use the mov value as needed
+          movMain =mov;
+
+        }
+      }
       for (var cartItem in cartSnapshot.docs) {
         String productID = cartItem['productID'];
         int orderQuantity = cartItem['orderQuantity'];
@@ -52,8 +74,10 @@ class _CartScreenState extends State<CartScreen> {
           double priceOfOneItem = double.parse(
               (productDoc['priceOfOneItem'] ?? 0.0).toString());
           amount += priceOfOneItem * orderQuantity;
+
         }
       }
+
     } catch (e) {
       // Display error message using SnackBar
       ScaffoldMessenger.of(context.mounted as BuildContext).showSnackBar(
@@ -63,11 +87,29 @@ class _CartScreenState extends State<CartScreen> {
       );
     }
     setState(() {
-      totalAmount = amount;
+      if (amount <= 5000) {
+        totalAmount = amount + 299.0;
+      } else if (amount <= 10000) {
+        totalAmount = amount + 599.0;
+      } else if (amount <= 20000) {
+        totalAmount = amount + 899.0;
+      } else {
+        totalAmount = amount + 1199.0;
+      }
       isLoading = false;
     });
   }
-
+  double calculateDeliveryCharges(double amount) {
+    if (amount <= 5000) {
+      return 299.0;
+    } else if (amount <= 10000) {
+      return 599.0;
+    } else if (amount <= 20000) {
+      return 899.0;
+    } else {
+      return 1199.0;
+    }
+  }
   Future<void> placeOrder() async {
     try {
       String orderID = const Uuid().v1();
@@ -229,11 +271,13 @@ class _CartScreenState extends State<CartScreen> {
                 .collection('cart')
                 .snapshots(),
             builder: (context, snapshot) {
+
               if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+
                       const Text("Your Cart is Empty"),
                       const SizedBox(height: 24),
                       Container(
@@ -323,19 +367,27 @@ class _CartScreenState extends State<CartScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: () {
+                onPressed: totalAmount > movMain
+                    ? () {
                   // Place order when the button is pressed
                   placeOrder();
+                }
+                    : () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Order does not cross Minimum order value!'),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.cyan,
+                  backgroundColor: totalAmount > movMain ? Colors.cyan : Colors.grey, // Change button color based on condition
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20.0,
                     vertical: 10.0,
                   ),
                 ),
                 child: Text(
-                  'Confirm Order - ₹ ${totalAmount.toStringAsFixed(2)}',
+                  'Confirm Order - ₹ ${totalAmount.toStringAsFixed(2)} (₹${calculateDeliveryCharges(totalAmount).toStringAsFixed(2)} DL)',
                   style: const TextStyle(fontSize: 12, color: Colors.white),
                 ),
               ),

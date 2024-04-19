@@ -292,12 +292,58 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       if (user != null) {
         String buyerId = user.uid;
 
+        // Fetch the vendor ID of the current product
+        DocumentSnapshot productSnapshot = await FirebaseFirestore.instance.collection('products').doc(widget.productID).get();
+        String currentProductVendorId = productSnapshot['vendorID'];
+
         CollectionReference buyerCollection = FirebaseFirestore.instance.collection('buyers');
         QuerySnapshot buyerQuery = await buyerCollection.where('buyerId', isEqualTo: buyerId).get();
 
+        // Check if the cart sub-collection is available
         if (buyerQuery.docs.isNotEmpty) {
           CollectionReference cartCollection = buyerCollection.doc(buyerId).collection('cart');
 
+          // Check if there are any items in the cart
+          QuerySnapshot cartQuery = await cartCollection.get();
+          if (cartQuery.docs.isNotEmpty) {
+            // Fetch the vendor ID of the first item in the cart
+            DocumentSnapshot cartItemSnapshot = cartQuery.docs.first;
+            String cartItemVendorId = (await FirebaseFirestore.instance.collection('products').doc(cartItemSnapshot['productID']).get())['vendorID'];
+
+            // Check if the vendor ID of the current product matches the vendor ID of the product in the cart
+            if (currentProductVendorId == cartItemVendorId) {
+              // Add the product to the cart
+              await cartCollection.add({
+                'productID': widget.productID,
+                'orderQuantity': orderQuantity,
+                'addressID': selectedAddressId,
+                'timestamp': FieldValue.serverTimestamp(),
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Product added to cart')),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Vendor mismatch. Cannot add product to cart.')),
+              );
+            }
+          } else {
+            // If the cart is empty, directly add the product to the cart
+            await cartCollection.add({
+              'productID': widget.productID,
+              'orderQuantity': orderQuantity,
+              'addressID': selectedAddressId,
+              'timestamp': FieldValue.serverTimestamp(),
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Product added to cart')),
+            );
+          }
+        } else {
+          // If the cart sub-collection is not available, add the product directly to the cart
+          CollectionReference cartCollection = buyerCollection.doc(buyerId).collection('cart');
           await cartCollection.add({
             'productID': widget.productID,
             'orderQuantity': orderQuantity,
@@ -307,10 +353,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Product added to cart')),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Buyer not found')),
           );
         }
       } else {
@@ -324,4 +366,5 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       );
     }
   }
+
 }

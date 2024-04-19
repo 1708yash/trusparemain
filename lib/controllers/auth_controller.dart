@@ -14,6 +14,7 @@ class AuthController {
   Future<String> signUpWithEmailAndPassword(String email, String password) async {
     String res = "Something went wrong";
     try {
+      // ignore: unused_local_variable
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
